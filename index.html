@@ -2,11 +2,29 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pomodoro Таймер</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            --control-button-size: 3.5rem; /* 56px */
+            --session-item-size: 16px;
+            --mode-button-padding-x: 0.75rem; /* 12px */
+            --mode-button-padding-y: 0.5rem;  /* 8px */
+            --container-padding: 1.25rem;     /* 20px */
+        }
+
+        @media (min-width: 640px) { /* sm breakpoint */
+            :root {
+                --control-button-size: 4rem; /* 64px */
+                --session-item-size: 20px;
+                --mode-button-padding-x: 1rem; /* 16px */
+                --mode-button-padding-y: 0.5rem; /* 8px */
+                --container-padding: 2rem;      /* 32px */
+            }
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4f8;
@@ -16,20 +34,23 @@
             min-height: 100vh;
             color: #334155;
             padding: 1rem;
-            overflow: hidden;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
         .container {
             background-color: #ffffff;
             border-radius: 1.5rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            padding: 2rem;
-            max-width: 28rem;
+            padding: var(--container-padding);
             width: 100%;
+            max-width: 28rem; /* 448px */
             text-align: center;
+            box-sizing: border-box; /* Include padding in width */
         }
         .mode-button {
             transition: all 0.2s ease-in-out;
             font-weight: 600;
+            padding: var(--mode-button-padding-y) var(--mode-button-padding-x);
+            font-size: 0.875rem; /* 14px on mobile, scales up */
         }
         .mode-button.active {
             background-color: #3b82f6;
@@ -39,13 +60,14 @@
         .control-button {
             transition: all 0.2s ease-in-out;
             transform: scale(1);
-            width: 4rem;
-            height: 4rem;
+            width: var(--control-button-size);
+            height: var(--control-button-size);
             display: flex;
             justify-content: center;
             align-items: center;
             border-radius: 9999px;
             color: #ffffff;
+            flex-shrink: 0; /* Prevent shrinking */
         }
         .control-button.start-btn {
             background: linear-gradient(145deg, #22c55e, #16a34a);
@@ -91,35 +113,42 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.75); /* Darker overlay for better contrast */
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 2000;
+            padding: 1rem;
+            box-sizing: border-box;
         }
         .modal-content {
             background-color: #fff;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 1rem;
             text-align: center;
-            width: 90%;
+            width: 100%;
             max-width: 24rem;
+            max-height: 90vh;
+            overflow-y: auto; /* Allow scrolling if content is too tall */
+            box-sizing: border-box;
         }
         .settings-form label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: #475569;
+            text-align: left; /* Align labels to the left for better readability */
         }
         .settings-control {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
         }
         .settings-form input[type="number"] {
-            width: 4rem;
+            width: 3.5rem; /* Slightly wider for easier tapping */
             padding: 0.25rem 0.5rem;
             border-radius: 0.5rem;
             border: 1px solid #e2e8f0;
             text-align: center;
+            font-size: 1rem; /* Larger font for better readability on mobile */
         }
         .settings-form .flex {
             justify-content: center;
@@ -127,16 +156,16 @@
         }
         canvas {
             display: block;
-            margin: 0 auto 1.5rem;
-            max-width: 100%;
+            margin: 0 auto 1.25rem;
+            width: 100%;
             height: auto;
             position: relative;
             transform-origin: center center;
         }
         .loading-indicator {
             position: absolute;
-            bottom: 1rem;
-            right: 1rem;
+            bottom: 0.75rem;
+            right: 0.75rem;
             display: none;
         }
         .spinner {
@@ -153,15 +182,16 @@
         }
         /* Updated styles for the tomato visual */
         .session-item {
-            width: 20px;
-            height: 20px;
+            width: var(--session-item-size);
+            height: var(--session-item-size);
             border-radius: 50%;
             background-color: #cbd5e1; /* gray-300 */
             transition: background-color 0.3s ease;
             position: relative;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin: 0 6px; /* Increased default margin */
+            margin: 0 5px; /* Consistent margin */
             z-index: 10;
+            flex-shrink: 0; /* Prevent shrinking */
         }
         .session-item.filled {
             background: linear-gradient(145deg, #ef4444, #dc2626);
@@ -172,8 +202,8 @@
             position: absolute;
             top: 1px;
             left: 1px;
-            width: 10px;
-            height: 10px;
+            width: calc(var(--session-item-size) / 2);
+            height: calc(var(--session-item-size) / 2);
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.5);
             filter: blur(3px);
@@ -184,28 +214,29 @@
             position: absolute;
             top: 3px;
             right: 3px;
-            width: 4px;
-            height: 4px;
+            width: calc(var(--session-item-size) / 5);
+            height: calc(var(--session-item-size) / 5);
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.7);
             filter: blur(1px);
             z-index: 1;
         }
         .session-item.extra-margin-right {
-            margin-right: 18px; /* Adds more "air" */
+            margin-right: 15px; /* Adjusted for smaller size */
         }
         .session-counter {
             display: flex;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            min-height: 2rem;
+            min-height: calc(var(--session-item-size) + 1rem);
             position: relative;
             z-index: 20;
+            gap: 0 5px; /* Use gap for more consistent spacing */
         }
         input[type="range"] {
             -webkit-appearance: none;
-            width: 80%;
+            width: 70%; /* Slightly narrower for better fit */
             height: 8px;
             background: #e2e8f0;
             border-radius: 5px;
@@ -219,16 +250,16 @@
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px; /* Larger thumb for easier touch */
+            height: 24px;
             background: #3b82f6;
             cursor: pointer;
             border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             background: #3b82f6;
             cursor: pointer;
             border-radius: 50%;
@@ -238,56 +269,75 @@
         #timer-canvas {
             transition: transform 1.2s cubic-bezier(0.6, 0.0, 0.4, 1.0), opacity 1.2s ease-in;
         }
+
+        /* Specific mobile adjustments */
+        @media (max-width: 639px) {
+            .mode-button {
+                font-size: 0.75rem; /* 12px */
+                padding: 0.4rem 0.6rem; /* Smaller padding on very small screens */
+            }
+            h1 {
+                font-size: 1.5rem; /* 24px */
+            }
+            .session-item {
+                margin: 0 4px; /* Tighter spacing on very small screens */
+            }
+            .session-item.extra-margin-right {
+                margin-right: 12px;
+            }
+            /* Ensure modal content doesn't get too cramped */
+            .modal-content {
+                padding: 1rem;
+            }
+            .settings-form label {
+                font-size: 0.875rem; /* 14px */
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <!-- Main timer container -->
     <div class="container">
-        <h1 class="text-3xl font-bold mb-6 text-gray-800">Таймер Pomodoro</h1>
-
+        <h1 class="text-2xl sm:text-3xl font-bold mb-5 sm:mb-6 text-gray-800">Таймер Pomodoro</h1>
         <!-- Mode selection and settings buttons -->
-        <div class="flex justify-between items-center mb-8">
-            <div class="flex space-x-2 bg-gray-200 p-1 rounded-full">
-                <button id="focus-btn" class="mode-button py-2 px-4 rounded-full active" data-mode="focus">Фокус</button>
-                <button id="short-break-btn" class="mode-button py-2 px-4 rounded-full" data-mode="short-break">Короткий перерыв</button>
-                <button id="long-break-btn" class="mode-button py-2 px-4 rounded-full" data-mode="long-break">Длинный перерыв</button>
+        <div class="flex flex-wrap justify-between items-center mb-6 sm:mb-8 gap-2">
+            <div class="flex flex-wrap space-x-1 bg-gray-200 p-1 rounded-full">
+                <button id="focus-btn" class="mode-button py-2 px-3 sm:py-2 sm:px-4 rounded-full active text-xs sm:text-sm" data-mode="focus">Фокус</button>
+                <button id="short-break-btn" class="mode-button py-2 px-3 sm:py-2 sm:px-4 rounded-full text-xs sm:text-sm" data-mode="short-break">Короткий</button>
+                <button id="long-break-btn" class="mode-button py-2 px-3 sm:py-2 sm:px-4 rounded-full text-xs sm:text-sm" data-mode="long-break">Длинный</button>
             </div>
-            <button id="settings-btn" class="py-2 px-4 rounded-full text-sm font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors">
+            <button id="settings-btn" class="py-2 px-3 sm:px-4 rounded-full text-xs sm:text-sm font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors whitespace-nowrap">
                 Настройки
             </button>
         </div>
-
         <!-- Time display -->
-        <div class="relative w-full max-w-sm mx-auto mb-4">
-            <canvas id="timer-canvas" width="400" height="400" class="w-full h-full"></canvas>
+        <div class="relative w-full max-w-xs sm:max-w-sm mx-auto mb-4">
+            <canvas id="timer-canvas" width="400" height="400" class="w-full h-auto"></canvas>
             <div id="loading-indicator" class="loading-indicator">
                 <div class="spinner"></div>
             </div>
         </div>
-        
         <!-- Session counter -->
-        <div id="session-counter" class="session-counter mb-8">
+        <div id="session-counter" class="session-counter mb-6 sm:mb-8">
             <!-- Circles will be generated here by JavaScript -->
         </div>
-        
         <!-- Control buttons -->
-        <div class="flex justify-center space-x-4">
-            <button id="start-btn" class="control-button start-btn shadow-lg">
+        <div class="flex justify-center space-x-6 sm:space-x-8">
+            <button id="start-btn" class="control-button start-btn shadow-lg" aria-label="Старт">
                 <div class="icon-container">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
                     </svg>
                 </div>
             </button>
-            <button id="pause-btn" class="control-button pause-btn shadow-lg hidden">
+            <button id="pause-btn" class="control-button pause-btn shadow-lg hidden" aria-label="Пауза">
                 <div class="icon-container">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
                     </svg>
                 </div>
             </button>
-            <button id="reset-btn" class="control-button reset-btn shadow-lg">
+            <button id="reset-btn" class="control-button reset-btn shadow-lg" aria-label="Сброс">
                 <div class="icon-container">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -296,76 +346,68 @@
             </button>
         </div>
     </div>
-
     <!-- Settings modal -->
     <div id="settings-modal" class="modal hidden">
         <div class="modal-content">
-            <h2 class="text-2xl font-bold mb-4">Настройки</h2>
-            
+            <h2 class="text-xl sm:text-2xl font-bold mb-4">Настройки</h2>
             <!-- Difficulty levels -->
             <div class="settings-control">
                 <label for="difficulty-level">Уровни сложности:</label>
-                <select id="difficulty-level" class="w-full mt-1 p-2 rounded-lg border border-gray-300">
+                <select id="difficulty-level" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-base">
                     <option value="standard">Стандартный (25 / 5 / 15 минут)</option>
                     <option value="intensive">Интенсивный (45 / 15 / 60 минут)</option>
                     <option value="custom">Свои настройки</option>
                 </select>
             </div>
-            
             <div class="settings-form">
                 <!-- Focus time setting -->
                 <div class="settings-control">
                     <label for="focus-time">Фокус (минуты):</label>
                     <div class="flex items-center space-x-2 mt-1">
                         <input type="range" id="focus-time-slider" min="1" max="60" value="25">
-                        <input type="number" id="focus-time" min="1" max="60" value="25" class="w-1/4 text-center">
+                        <input type="number" id="focus-time" min="1" max="60" value="25" class="text-center">
                     </div>
                 </div>
-
                 <!-- Short break time setting -->
                 <div class="settings-control">
                     <label for="short-break-time">Короткий перерыв (минуты):</label>
                     <div class="flex items-center space-x-2 mt-1">
                         <input type="range" id="short-break-time-slider" min="1" max="15" value="5">
-                        <input type="number" id="short-break-time" min="1" max="15" value="5" class="w-1/4 text-center">
+                        <input type="number" id="short-break-time" min="1" max="15" value="5" class="text-center">
                     </div>
                 </div>
-
                 <!-- Long break time setting -->
                 <div class="settings-control">
                     <label for="long-break-time">Длинный перерыв (минуты):</label>
                     <div class="flex items-center space-x-2 mt-1">
                         <input type="range" id="long-break-time-slider" min="5" max="30" value="15">
-                        <input type="number" id="long-break-time" min="5" max="30" value="15" class="w-1/4 text-center">
+                        <input type="number" id="long-break-time" min="5" max="30" value="15" class="text-center">
                     </div>
                 </div>
-
                 <!-- Sessions count setting -->
                 <div class="settings-control">
                     <label for="sessions-count-slider">Сессий до длинного перерыва:</label>
                     <div class="flex items-center space-x-2 mt-1">
                         <input type="range" id="sessions-count-slider" min="1" max="10" value="4">
-                        <input type="number" id="sessions-count-input" min="1" max="10" value="4" class="w-1/4 text-center">
+                        <input type="number" id="sessions-count-input" min="1" max="10" value="4" class="text-center">
                     </div>
                 </div>
-                
                 <!-- Total duration setting -->
                 <div class="settings-control">
                     <label for="total-duration">Общая длительность (часы):</label>
                     <div class="flex items-center space-x-2 mt-1">
                         <input type="range" id="total-duration-slider" min="0.5" max="12" step="0.5" value="8">
-                        <input type="number" id="total-duration-input" min="0.5" max="12" step="0.5" value="8" class="w-1/4 text-center">
+                        <input type="number" id="total-duration-input" min="0.5" max="12" step="0.5" value="8" class="text-center">
                     </div>
                 </div>
             </div>
-            <div class="flex justify-center space-x-4 mt-4">
-                <button id="save-settings-btn" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Сохранить</button>
-                <button id="cancel-settings-btn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-400">Отмена</button>
-                <button id="reset-default-btn" class="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600">Сброс настроек</button>
+            <div class="flex flex-wrap justify-center gap-2 mt-4">
+                <button id="save-settings-btn" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 text-sm sm:text-base flex-1 min-w-[100px]">Сохранить</button>
+                <button id="cancel-settings-btn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-400 text-sm sm:text-base flex-1 min-w-[100px]">Отмена</button>
+                <button id="reset-default-btn" class="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 text-sm sm:text-base flex-1 min-w-[100px]">Сброс</button>
             </div>
         </div>
     </div>
-    
     <script>
         // Durations in seconds for each mode.
         let TIMER_MODES = {
@@ -373,7 +415,6 @@
             'short-break': 5 * 60,
             'long-break': 15 * 60
         };
-        
         // Phrases for TTS feedback
         const PHRASES = {
             focus: {
@@ -389,7 +430,6 @@
                 end: ["Длинный перерыв окончен. Пора вернуться к работе.", "Возвращаемся к делам. Перерыв окончен.", "Закончили отдых. Снова за работу!"]
             }
         };
-
         // Default values for settings to be able to reset.
         const DEFAULT_SETTINGS = {
             focus: 25,
@@ -398,7 +438,6 @@
             sessionsInCycle: 4,
             totalDuration: 8
         };
-
         // DOM elements
         const timerCanvas = document.getElementById('timer-canvas');
         const ctx = timerCanvas.getContext('2d');
@@ -411,7 +450,6 @@
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
         const resetDefaultBtn = document.getElementById('reset-default-btn'); // New reset button
-
         // Settings elements
         const difficultyLevel = document.getElementById('difficulty-level'); // New difficulty dropdown
         const focusTimeSlider = document.getElementById('focus-time-slider');
@@ -426,7 +464,6 @@
         const totalDurationInput = document.getElementById('total-duration-input');
         const loadingIndicator = document.getElementById('loading-indicator');
         const sessionCounterContainer = document.getElementById('session-counter');
-
         let animationFrameId;
         let isRunning = false;
         let currentMode = 'focus';
@@ -436,7 +473,6 @@
         let completedSessions = 0; // Variable to track completed sessions
         let totalSessions = 12; // Default number of circles to display
         let sessionsInCycle = 4; // Sessions per cycle before long break
-
         /**
          * Plays a simple, more pleasant alarm sound using Web Audio API.
          */
@@ -445,23 +481,19 @@
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
-
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
-
                 oscillator.type = 'sine'; // Changed to a sine wave for a smoother, less harsh sound
                 oscillator.frequency.value = 523.25; // C5 note, a more pleasant frequency
                 gainNode.gain.setValueAtTime(0, audioContext.currentTime);
                 gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.1); // Quick fade-in
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.2); // Gentle fade-out over 1.2s
-
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + 1.5);
             } catch (e) {
                 console.error("Web Audio API is not supported in this browser:", e);
             }
         }
-
         /**
          * Renders the session progress circles.
          */
@@ -470,43 +502,34 @@
             for (let i = 0; i < totalSessions; i++) {
                 const sessionItem = document.createElement('div');
                 sessionItem.classList.add('session-item');
-                
                 if (i < completedSessions) {
                     sessionItem.classList.add('filled');
                 }
-
                 // Add extra margin for "air" after every Nth pomodoro
                 if ((i + 1) % sessionsInCycle === 0 && (i + 1) < totalSessions) {
                     sessionItem.classList.add('extra-margin-right');
                 }
-
                 sessionCounterContainer.appendChild(sessionItem);
             }
         }
-        
         /**
          * Updates the time display on the canvas.
          * @param {number} currentTime - Current time in milliseconds.
          */
         function updateDisplay(currentTime) {
             if (!isRunning) return;
-
             // Dimensions and circle parameters
             const canvasWidth = timerCanvas.width;
             const canvasHeight = timerCanvas.height;
             const centerX = canvasWidth / 2;
             const centerY = canvasHeight / 2;
-
             // Calculate radius to avoid negative values
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return; // Do not render if radius is too small
-            
             const lineWidth = 15;
-
             // Calculate remaining time
             const elapsed = (currentTime - startTime) / 1000;
             timeRemaining = Math.max(0, totalTime - elapsed);
-            
             // If time is up and it's a focus session, start animation
             if (timeRemaining <= 0) {
                 if (currentMode === 'focus') {
@@ -515,7 +538,6 @@
                     stopTimer();
                     playAlarmSound();
                     playTTS(currentMode, 'end');
-
                     if (currentMode === 'focus') {
                         completedSessions++;
                         if (completedSessions % sessionsInCycle === 0) {
@@ -529,25 +551,20 @@
                 }
                 return;
             }
-
             // Clear Canvas
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
             // Draw gray circle background
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
             ctx.lineWidth = lineWidth;
             ctx.strokeStyle = '#e2e8f0';
             ctx.stroke();
-
             // Calculate progress and color (smooth transition from green to red)
             const progress = elapsed / totalTime;
             const endAngle = (2 * Math.PI * progress) - (Math.PI / 2);
-            
             // Hue goes from 120 (green) to 0 (red) as progress goes from 0 to 1
             const hue = 120 * (1 - progress); 
             const progressBarColor = `hsl(${hue}, 70%, 50%)`;
-
             // Draw progress bar
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle, false);
@@ -555,64 +572,53 @@
             ctx.lineWidth = lineWidth;
             ctx.lineCap = 'round';
             ctx.stroke();
-
             // Draw time text
             const minutes = Math.floor(timeRemaining / 60);
             const seconds = Math.round(timeRemaining % 60);
             const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            
-            ctx.font = 'bold 5rem Inter, sans-serif';
+            ctx.font = 'bold 4rem Inter, sans-serif'; // Slightly smaller font for mobile
             ctx.fillStyle = '#1e293b';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(timeText, centerX, centerY);
-            
             document.title = `${timeText} - Pomodoro`;
-            
             animationFrameId = requestAnimationFrame(updateDisplay);
         }
-        
         /**
          * Sets the canvas dimensions based on its container.
          * Also draws an empty progress bar on load/reset.
          */
         function resizeCanvas() {
             const container = timerCanvas.parentElement;
-            timerCanvas.width = container.offsetWidth;
-            timerCanvas.height = container.offsetWidth; // Make it square
+            const size = Math.min(container.offsetWidth, container.offsetHeight, 400); // Cap at 400px
+            timerCanvas.width = size;
+            timerCanvas.height = size;
             
             const minutes = Math.floor(totalTime / 60);
             const seconds = Math.round(totalTime % 60);
             const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            
             ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
-            
             const canvasWidth = timerCanvas.width;
             const canvasHeight = timerCanvas.height;
             const centerX = canvasWidth / 2;
             const centerY = canvasHeight / 2;
-
             // Calculate radius to avoid negative values
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return; // Do not render if radius is too small
-            
             const lineWidth = 15;
-            
             // Draw empty progress bar circle
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
             ctx.lineWidth = lineWidth;
             ctx.strokeStyle = '#e2e8f0';
             ctx.stroke();
-
             // Draw time text over the circle
-            ctx.font = 'bold 5rem Inter, sans-serif';
+            ctx.font = 'bold 4rem Inter, sans-serif'; // Slightly smaller font for mobile
             ctx.fillStyle = '#1e293b';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(timeText, centerX, centerY);
         }
-
         /**
          * Gets a random phrase from the prepared lists.
          * @param {string} mode - The current timer mode ('focus', 'short-break', 'long-break').
@@ -624,7 +630,6 @@
             const randomIndex = Math.floor(Math.random() * phrases.length);
             return phrases[randomIndex];
         }
-
         /**
          * Plays a TTS notification using the Gemini TTS API.
          * @param {string} mode - Current mode.
@@ -633,9 +638,7 @@
         async function playTTS(mode, action) {
             const prompt = getRandomPhrase(mode, action);
             const voice = 'Zephyr'; // Default voice since selection is removed.
-            
             loadingIndicator.style.display = 'flex';
-
             try {
                 const payload = {
                     contents: [{
@@ -655,22 +658,18 @@
                 };
                 const apiKey = "AIzaSyB39GYhkJd4fXNVRMNtD06gFt09kMsEel0";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status} ${response.statusText}`);
                 }
-
                 const result = await response.json();
                 const part = result?.candidates?.[0]?.content?.parts?.[0];
                 const audioData = part?.inlineData?.data;
                 const mimeType = part?.inlineData?.mimeType;
-
                 if (audioData && mimeType && mimeType.startsWith("audio/")) {
                     const sampleRateMatch = mimeType.match(/rate=(\d+)/);
                     const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
@@ -689,7 +688,6 @@
                 loadingIndicator.style.display = 'none';
             }
         }
-
         /**
          * Helper function to convert Base64 to ArrayBuffer.
          * @param {string} base64 - Base64 string of audio data.
@@ -704,7 +702,6 @@
             }
             return bytes.buffer;
         }
-
         /**
          * Helper function to convert PCM data to WAV format.
          * @param {Int16Array} pcmData - PCM audio data.
@@ -716,15 +713,12 @@
             const bitsPerSample = 16;
             const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
             const blockAlign = numChannels * (bitsPerSample / 8);
-
             const buffer = new ArrayBuffer(44 + pcmData.byteLength);
             const view = new DataView(buffer);
-
             // RIFF header
             writeString(view, 0, 'RIFF');
             view.setUint32(4, 36 + pcmData.byteLength, true);
             writeString(view, 8, 'WAVE');
-
             // fmt chunk
             writeString(view, 12, 'fmt ');
             view.setUint32(16, 16, true);
@@ -734,25 +728,20 @@
             view.setUint32(28, byteRate, true);
             view.setUint16(32, blockAlign, true);
             view.setUint16(34, bitsPerSample, true);
-
             // data chunk
             writeString(view, 36, 'data');
             view.setUint32(40, pcmData.byteLength, true);
-
             // Write PCM data
             for (let i = 0; i < pcmData.length; i++) {
                 view.setInt16(44 + i * 2, pcmData[i], true);
             }
-
             return new Blob([view], { type: 'audio/wav' });
         }
-
         function writeString(view, offset, string) {
             for (let i = 0; i < string.length; i++) {
                 view.setUint8(offset + i, string.charCodeAt(i));
             }
         }
-        
         /**
          * Switches the timer mode.
          * @param {string} mode - Mode name.
@@ -766,7 +755,6 @@
                 performModeSwitch(mode);
             }
         }
-        
         /**
          * Performs the mode switch after confirmation.
          * @param {string} mode - Mode name.
@@ -776,10 +764,8 @@
             currentMode = mode;
             totalTime = TIMER_MODES[currentMode];
             timeRemaining = totalTime;
-            
             startBtn.classList.remove('hidden');
             pauseBtn.classList.add('hidden');
-            
             modeButtons.forEach(btn => {
                 if (btn.dataset.mode === mode) {
                     btn.classList.add('active');
@@ -787,45 +773,34 @@
                     btn.classList.remove('active');
                 }
             });
-
             // Update display with new time and empty progress bar
             resizeCanvas();
             drawSessionItems(); // Ensure elements are reset on mode change
-            
             // Reset canvas transform in case it was animated
             timerCanvas.style.transform = '';
             timerCanvas.style.opacity = '1';
         }
-
         /**
          * Starts the timer.
          */
         function startTimer() {
             if (isRunning) return;
-
             isRunning = true;
-            
             startBtn.classList.add('hidden');
             pauseBtn.classList.remove('hidden');
-
             playTTS(currentMode, 'start');
-
             startTime = performance.now();
             animationFrameId = requestAnimationFrame(updateDisplay);
         }
-        
         /**
          * Pauses the timer.
          */
         function pauseTimer() {
             if (!isRunning) return;
-            
             stopTimer();
-            
             startBtn.classList.remove('hidden');
             pauseBtn.classList.add('hidden');
         }
-        
         /**
          * Stops the timer.
          */
@@ -833,7 +808,6 @@
             cancelAnimationFrame(animationFrameId);
             isRunning = false;
         }
-
         /**
          * Resets the timer to the initial value for the current mode.
          */
@@ -841,19 +815,15 @@
             stopTimer();
             timeRemaining = TIMER_MODES[currentMode];
             resizeCanvas();
-            
             startBtn.classList.remove('hidden');
             pauseBtn.classList.add('hidden');
-
             // Reset completed sessions counter to prevent inconsistencies
             completedSessions = 0;
             drawSessionItems();
-            
             // Reset canvas transform in case it was animated
             timerCanvas.style.transform = '';
             timerCanvas.style.opacity = '1';
         }
-        
         /**
          * Generates and shows a custom modal window.
          * @param {string} message - Message text.
@@ -862,7 +832,6 @@
         function showModal(message, onConfirm) {
             const existingModal = document.querySelector('.modal');
             if (existingModal) existingModal.remove();
-
             const modalHtml = `
                 <div class="modal">
                     <div class="modal-content">
@@ -875,17 +844,14 @@
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
-
             document.getElementById('modal-confirm-btn').addEventListener('click', () => {
                 onConfirm();
                 document.querySelector('.modal').remove();
             });
-
             document.getElementById('modal-cancel-btn').addEventListener('click', () => {
                 document.querySelector('.modal').remove();
             });
         }
-        
         /**
          * Calculates the total number of sessions based on the desired total duration.
          * @param {number} totalHours - Total duration of the workday in hours.
@@ -897,19 +863,15 @@
             const shortBreakMinutes = parseFloat(shortBreakTimeInput.value);
             const longBreakMinutes = parseFloat(longBreakTimeInput.value);
             const sessionsPerCycle = parseInt(sessionsCountInput.value);
-
             if (focusMinutes <= 0 || shortBreakMinutes <= 0 || longBreakMinutes <= 0 || sessionsPerCycle <= 0) {
                 return 0;
             }
-
             let sessionsCount = 0;
             let currentMinutes = 0;
-
             // Simple iterative calculation to find the closest number of sessions
             while (currentMinutes < totalMinutes) {
                 sessionsCount++;
                 currentMinutes += focusMinutes; // Add focus time
-                
                 // Add break time
                 if (sessionsCount % sessionsPerCycle === 0) {
                     currentMinutes += longBreakMinutes;
@@ -920,7 +882,6 @@
             // Return the number of sessions, rounded down, to not exceed the total duration too much
             return Math.max(1, sessionsCount - 1);
         }
-        
         /**
          * Synchronizes values between a slider and an input field.
          * @param {HTMLElement} slider - Slider element.
@@ -940,7 +901,6 @@
                 }
             });
         }
-        
         /**
          * Sets the settings values based on the selected difficulty level.
          * @param {string} level - Difficulty level ('standard', 'intensive', or 'custom').
@@ -961,7 +921,6 @@
                 };
                 settings = predefinedSettings[level];
             }
-
             focusTimeInput.value = settings.focus;
             focusTimeSlider.value = settings.focus;
             shortBreakTimeInput.value = settings.short;
@@ -973,7 +932,6 @@
             totalDurationInput.value = settings.totalDuration;
             totalDurationSlider.value = settings.totalDuration;
         }
-
         /**
          * Handles the session end logic, including the new animation.
          */
@@ -981,7 +939,6 @@
             stopTimer(); // Stop the timer loop
             playAlarmSound(); // Play alarm sound
             playTTS(currentMode, 'end'); // Play TTS
-
             const targetSessionElement = document.getElementById('session-counter').children[completedSessions];
             if (!targetSessionElement) {
                 // If there's no target element, just do the regular switch
@@ -993,25 +950,20 @@
                 }
                 return;
             }
-
             // Get positions for the animation
             const canvasRect = timerCanvas.getBoundingClientRect();
             const targetRect = targetSessionElement.getBoundingClientRect();
-            
             const dx = (targetRect.left + targetRect.width / 2) - (canvasRect.left + canvasRect.width / 2);
             const dy = (targetRect.top + targetRect.height / 2) - (canvasRect.top + canvasRect.height / 2);
-
             // Animate canvas transform and opacity
             timerCanvas.style.transform = `translate(${dx}px, ${dy}px) scale(0.1)`;
             timerCanvas.style.opacity = '0';
-            
             setTimeout(() => {
                 // After animation, update the session count and UI
                 completedSessions++;
                 drawSessionItems(); // Update session circles
                 timerCanvas.style.transform = ''; // Reset transform
                 timerCanvas.style.opacity = '1'; // Reset opacity
-                
                 // Check for long break cycle and switch mode
                 if (completedSessions % sessionsInCycle === 0) {
                     setMode('long-break');
@@ -1020,7 +972,6 @@
                 }
             }, 1200); // Wait for the transition to finish
         }
-
         // Open settings modal
         settingsBtn.addEventListener('click', () => {
             // Set current values to input fields and sliders
@@ -1033,10 +984,8 @@
             sessionsCountSlider.value = sessionsInCycle;
             sessionsCountInput.value = sessionsInCycle;
             totalDurationSlider.value = totalDurationInput.value; // Sync on open
-            
             settingsModal.classList.remove('hidden');
         });
-
         // Save settings from modal
         saveSettingsBtn.addEventListener('click', () => {
             const newFocusTime = parseFloat(focusTimeInput.value) * 60;
@@ -1044,18 +993,15 @@
             const newLongBreakTime = parseFloat(longBreakTimeInput.value) * 60;
             const newSessionsInCycle = parseInt(sessionsCountInput.value);
             const totalDurationHours = parseFloat(totalDurationInput.value);
-
             // Input validation
             if (!isNaN(newFocusTime) && newFocusTime > 0 &&
                 !isNaN(newShortBreakTime) && newShortBreakTime > 0 &&
                 !isNaN(newLongBreakTime) && newLongBreakTime > 0 &&
                 !isNaN(newSessionsInCycle) && newSessionsInCycle > 0) {
-                
                 TIMER_MODES.focus = newFocusTime;
                 TIMER_MODES['short-break'] = newShortBreakTime;
                 TIMER_MODES['long-break'] = newLongBreakTime;
                 sessionsInCycle = newSessionsInCycle; // Update sessions in cycle
-
                 // If 'Custom' level is selected, save settings to localStorage
                 if (difficultyLevel.value === 'custom') {
                     const customSettings = {
@@ -1067,7 +1013,6 @@
                     };
                     localStorage.setItem('customPomodoroSettings', JSON.stringify(customSettings));
                 }
-
                 // If total duration is specified, calculate and update total sessions
                 if (!isNaN(totalDurationHours) && totalDurationHours > 0) {
                     totalSessions = calculateTotalSessions(totalDurationHours);
@@ -1075,10 +1020,8 @@
                     // Default to 12 sessions if total duration is not specified
                     totalSessions = 12;
                 }
-                
                 // Reset completed sessions counter to prevent inconsistencies
                 completedSessions = 0;
-                
                 if (!isRunning) {
                     totalTime = TIMER_MODES[currentMode];
                     timeRemaining = totalTime;
@@ -1090,24 +1033,20 @@
                 showModal("Пожалуйста, введите корректные значения (больше 0).", () => {});
             }
         });
-
         // Cancel settings and close modal
         cancelSettingsBtn.addEventListener('click', () => {
             settingsModal.classList.add('hidden');
         });
-        
         // Reset settings to default values
         resetDefaultBtn.addEventListener('click', () => {
             setDifficultyLevel('standard');
             // Select standard level in the dropdown
             difficultyLevel.value = 'standard';
         });
-
         // Handle difficulty level change
         difficultyLevel.addEventListener('change', (e) => {
             setDifficultyLevel(e.target.value);
         });
-        
         // Initialization
         window.onload = function() {
             // Load custom settings from localStorage on page load
@@ -1121,34 +1060,40 @@
             resizeCanvas();
             drawSessionItems(); // Initial draw of session items
         };
-
-        window.addEventListener('resize', resizeCanvas);
-
+        window.addEventListener('resize', () => {
+            clearTimeout(window.resizeTimer); // Debounce resize
+            window.resizeTimer = setTimeout(resizeCanvas, 100);
+        });
         // Add event listeners for buttons
         startBtn.addEventListener('click', startTimer);
         pauseBtn.addEventListener('click', pauseTimer);
         resetBtn.addEventListener('click', resetTimer);
-
         document.getElementById('focus-btn').addEventListener('click', () => setMode('focus'));
         document.getElementById('short-break-btn').addEventListener('click', () => setMode('short-break'));
         document.getElementById('long-break-btn').addEventListener('click', () => setMode('long-break'));
-
         // Synchronize inputs and sliders
         syncInputs(focusTimeSlider, focusTimeInput);
         syncInputs(shortBreakTimeSlider, shortBreakTimeInput);
         syncInputs(longBreakTimeSlider, longBreakTimeInput);
         syncInputs(sessionsCountSlider, sessionsCountInput);
         syncInputs(totalDurationSlider, totalDurationInput);
-        
         // Additional sync for total duration
         totalDurationInput.addEventListener('input', () => {
             totalDurationSlider.value = totalDurationInput.value;
         });
-        
         totalDurationSlider.addEventListener('input', () => {
             totalDurationInput.value = totalDurationSlider.value;
         });
+
+        // Prevent zoom on double tap for better mobile UX
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>
-
