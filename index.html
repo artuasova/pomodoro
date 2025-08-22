@@ -84,6 +84,10 @@
         .control-button:active {
             transform: scale(0.95);
         }
+        .control-button svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
         .icon-container {
             width: 1.5rem;
             height: 1.5rem;
@@ -473,6 +477,7 @@
         let completedSessions = 0; // Variable to track completed sessions
         let totalSessions = 12; // Default number of circles to display
         let sessionsInCycle = 4; // Sessions per cycle before long break
+        let audioContextForUnlock = null; // For mobile audio unlock
         /**
          * Plays a simple, more pleasant alarm sound using Web Audio API.
          */
@@ -678,7 +683,18 @@
                     const wavBlob = pcmToWav(pcm16, sampleRate);
                     const audioUrl = URL.createObjectURL(wavBlob);
                     const audio = new Audio(audioUrl);
-                    await audio.play();
+
+                    // Handle autoplay on mobile
+                    const playPromise = audio.play();
+                    if (playPromise !== undefined) {
+                        playPromise
+                            .then(() => {
+                                console.log("TTS воспроизведён успешно");
+                            })
+                            .catch(error => {
+                                console.warn("Автовоспроизведение TTS заблокировано:", error);
+                            });
+                    }
                 } else {
                     console.error("Could not get audio data from API response.");
                 }
@@ -785,12 +801,25 @@
          */
         function startTimer() {
             if (isRunning) return;
+
+            // Mobile audio unlock
+            if (!audioContextForUnlock) {
+                if (window.AudioContext || window.webkitAudioContext) {
+                    audioContextForUnlock = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            if (audioContextForUnlock && audioContextForUnlock.state === 'suspended') {
+                audioContextForUnlock.resume().catch(e => console.log("Ошибка возобновления AudioContext:", e));
+            }
+
             isRunning = true;
             startBtn.classList.add('hidden');
             pauseBtn.classList.remove('hidden');
-            playTTS(currentMode, 'start');
+            
+            // Play TTS after starting animation frame
             startTime = performance.now();
             animationFrameId = requestAnimationFrame(updateDisplay);
+            playTTS(currentMode, 'start').catch(e => console.error("Ошибка TTS при старте:", e));
         }
         /**
          * Pauses the timer.
