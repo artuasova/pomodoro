@@ -477,28 +477,40 @@
         let completedSessions = 0; // Variable to track completed sessions
         let totalSessions = 12; // Default number of circles to display
         let sessionsInCycle = 4; // Sessions per cycle before long break
-        let audioContextForUnlock = null; // For mobile audio unlock
+        let audioContextForUnlock = null; // Global variable for AudioContext unlock
+
         /**
          * Plays a simple, more pleasant alarm sound using Web Audio API.
+         * Handles mobile browser autoplay restrictions.
          */
         function playAlarmSound() {
             try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Try to use the unlocked AudioContext first
+                let audioContext;
+                if (audioContextForUnlock && audioContextForUnlock.state !== 'closed') {
+                    audioContext = audioContextForUnlock;
+                } else {
+                    // Fallback to creating a new one (might be blocked)
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
-                oscillator.type = 'sine'; // Changed to a sine wave for a smoother, less harsh sound
-                oscillator.frequency.value = 523.25; // C5 note, a more pleasant frequency
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 523.25; // C5 note
                 gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.1); // Quick fade-in
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.2); // Gentle fade-out over 1.2s
+                gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.2);
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + 1.5);
             } catch (e) {
-                console.error("Web Audio API is not supported in this browser:", e);
+                console.error("Web Audio API is not supported or blocked in this browser:", e);
+                // Fallback: Could try to play a pre-loaded silent audio file here if needed
             }
         }
+
         /**
          * Renders the session progress circles.
          */
@@ -517,6 +529,7 @@
                 sessionCounterContainer.appendChild(sessionItem);
             }
         }
+
         /**
          * Updates the time display on the canvas.
          * @param {number} currentTime - Current time in milliseconds.
@@ -589,6 +602,7 @@
             document.title = `${timeText} - Pomodoro`;
             animationFrameId = requestAnimationFrame(updateDisplay);
         }
+
         /**
          * Sets the canvas dimensions based on its container.
          * Also draws an empty progress bar on load/reset.
@@ -624,6 +638,7 @@
             ctx.textBaseline = 'middle';
             ctx.fillText(timeText, centerX, centerY);
         }
+
         /**
          * Gets a random phrase from the prepared lists.
          * @param {string} mode - The current timer mode ('focus', 'short-break', 'long-break').
@@ -635,14 +650,16 @@
             const randomIndex = Math.floor(Math.random() * phrases.length);
             return phrases[randomIndex];
         }
+
         /**
          * Plays a TTS notification using the Gemini TTS API.
+         * Handles mobile browser autoplay restrictions.
          * @param {string} mode - Current mode.
          * @param {string} action - Action ('start' or 'end').
          */
         async function playTTS(mode, action) {
             const prompt = getRandomPhrase(mode, action);
-            const voice = 'Zephyr'; // Default voice since selection is removed.
+            const voice = 'Zephyr';
             loadingIndicator.style.display = 'flex';
             try {
                 const payload = {
@@ -655,7 +672,6 @@
                             voiceConfig: {
                                 prebuiltVoiceConfig: { voiceName: voice }
                             },
-                            // IMPORTANT: Ensures only Russian language is used.
                             languageCode: "ru-RU" 
                         }
                     },
@@ -663,18 +679,22 @@
                 };
                 const apiKey = "AIzaSyB39GYhkJd4fXNVRMNtD06gFt09kMsEel0";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status} ${response.statusText}`);
                 }
+
                 const result = await response.json();
                 const part = result?.candidates?.[0]?.content?.parts?.[0];
                 const audioData = part?.inlineData?.data;
                 const mimeType = part?.inlineData?.mimeType;
+
                 if (audioData && mimeType && mimeType.startsWith("audio/")) {
                     const sampleRateMatch = mimeType.match(/rate=(\d+)/);
                     const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
@@ -684,15 +704,20 @@
                     const audioUrl = URL.createObjectURL(wavBlob);
                     const audio = new Audio(audioUrl);
 
-                    // Handle autoplay on mobile
+                    // Handle autoplay on mobile - this is the key part
                     const playPromise = audio.play();
+
                     if (playPromise !== undefined) {
                         playPromise
                             .then(() => {
+                                // Playback started successfully
                                 console.log("TTS воспроизведён успешно");
                             })
                             .catch(error => {
+                                // Autoplay was prevented.
                                 console.warn("Автовоспроизведение TTS заблокировано:", error);
+                                // Optionally, show a user-friendly message or a button to manually play
+                                // showModal("Для воспроизведения голосовых уведомлений разрешите воспроизведение аудио в браузере или коснитесь экрана.", () => {});
                             });
                     }
                 } else {
@@ -704,6 +729,7 @@
                 loadingIndicator.style.display = 'none';
             }
         }
+
         /**
          * Helper function to convert Base64 to ArrayBuffer.
          * @param {string} base64 - Base64 string of audio data.
@@ -718,6 +744,7 @@
             }
             return bytes.buffer;
         }
+
         /**
          * Helper function to convert PCM data to WAV format.
          * @param {Int16Array} pcmData - PCM audio data.
@@ -753,11 +780,13 @@
             }
             return new Blob([view], { type: 'audio/wav' });
         }
+
         function writeString(view, offset, string) {
             for (let i = 0; i < string.length; i++) {
                 view.setUint8(offset + i, string.charCodeAt(i));
             }
         }
+
         /**
          * Switches the timer mode.
          * @param {string} mode - Mode name.
@@ -771,6 +800,7 @@
                 performModeSwitch(mode);
             }
         }
+
         /**
          * Performs the mode switch after confirmation.
          * @param {string} mode - Mode name.
@@ -796,13 +826,16 @@
             timerCanvas.style.transform = '';
             timerCanvas.style.opacity = '1';
         }
+
         /**
          * Starts the timer.
+         * Handles mobile browser autoplay restrictions for both TTS and alarm sound.
          */
         function startTimer() {
             if (isRunning) return;
 
-            // Mobile audio unlock
+            // === MOBILE AUDIO UNLOCK ===
+            // Attempt to unlock AudioContext on the first user gesture
             if (!audioContextForUnlock) {
                 if (window.AudioContext || window.webkitAudioContext) {
                     audioContextForUnlock = new (window.AudioContext || window.webkitAudioContext)();
@@ -811,16 +844,20 @@
             if (audioContextForUnlock && audioContextForUnlock.state === 'suspended') {
                 audioContextForUnlock.resume().catch(e => console.log("Ошибка возобновления AudioContext:", e));
             }
+            // === END MOBILE AUDIO UNLOCK ===
 
             isRunning = true;
             startBtn.classList.add('hidden');
             pauseBtn.classList.remove('hidden');
             
-            // Play TTS after starting animation frame
+            // Start the timer animation frame first
             startTime = performance.now();
             animationFrameId = requestAnimationFrame(updateDisplay);
+            
+            // Then, play TTS. It should now be allowed because it's chained to the user gesture
             playTTS(currentMode, 'start').catch(e => console.error("Ошибка TTS при старте:", e));
         }
+
         /**
          * Pauses the timer.
          */
@@ -830,6 +867,7 @@
             startBtn.classList.remove('hidden');
             pauseBtn.classList.add('hidden');
         }
+
         /**
          * Stops the timer.
          */
@@ -837,6 +875,7 @@
             cancelAnimationFrame(animationFrameId);
             isRunning = false;
         }
+
         /**
          * Resets the timer to the initial value for the current mode.
          */
@@ -853,6 +892,7 @@
             timerCanvas.style.transform = '';
             timerCanvas.style.opacity = '1';
         }
+
         /**
          * Generates and shows a custom modal window.
          * @param {string} message - Message text.
@@ -881,6 +921,7 @@
                 document.querySelector('.modal').remove();
             });
         }
+
         /**
          * Calculates the total number of sessions based on the desired total duration.
          * @param {number} totalHours - Total duration of the workday in hours.
@@ -911,6 +952,7 @@
             // Return the number of sessions, rounded down, to not exceed the total duration too much
             return Math.max(1, sessionsCount - 1);
         }
+
         /**
          * Synchronizes values between a slider and an input field.
          * @param {HTMLElement} slider - Slider element.
@@ -930,6 +972,7 @@
                 }
             });
         }
+
         /**
          * Sets the settings values based on the selected difficulty level.
          * @param {string} level - Difficulty level ('standard', 'intensive', or 'custom').
@@ -961,6 +1004,7 @@
             totalDurationInput.value = settings.totalDuration;
             totalDurationSlider.value = settings.totalDuration;
         }
+
         /**
          * Handles the session end logic, including the new animation.
          */
@@ -1001,6 +1045,7 @@
                 }
             }, 1200); // Wait for the transition to finish
         }
+
         // Open settings modal
         settingsBtn.addEventListener('click', () => {
             // Set current values to input fields and sliders
@@ -1015,6 +1060,7 @@
             totalDurationSlider.value = totalDurationInput.value; // Sync on open
             settingsModal.classList.remove('hidden');
         });
+
         // Save settings from modal
         saveSettingsBtn.addEventListener('click', () => {
             const newFocusTime = parseFloat(focusTimeInput.value) * 60;
@@ -1062,20 +1108,24 @@
                 showModal("Пожалуйста, введите корректные значения (больше 0).", () => {});
             }
         });
+
         // Cancel settings and close modal
         cancelSettingsBtn.addEventListener('click', () => {
             settingsModal.classList.add('hidden');
         });
+
         // Reset settings to default values
         resetDefaultBtn.addEventListener('click', () => {
             setDifficultyLevel('standard');
             // Select standard level in the dropdown
             difficultyLevel.value = 'standard';
         });
+
         // Handle difficulty level change
         difficultyLevel.addEventListener('change', (e) => {
             setDifficultyLevel(e.target.value);
         });
+
         // Initialization
         window.onload = function() {
             // Load custom settings from localStorage on page load
@@ -1089,10 +1139,12 @@
             resizeCanvas();
             drawSessionItems(); // Initial draw of session items
         };
+
         window.addEventListener('resize', () => {
             clearTimeout(window.resizeTimer); // Debounce resize
             window.resizeTimer = setTimeout(resizeCanvas, 100);
         });
+
         // Add event listeners for buttons
         startBtn.addEventListener('click', startTimer);
         pauseBtn.addEventListener('click', pauseTimer);
@@ -1100,12 +1152,14 @@
         document.getElementById('focus-btn').addEventListener('click', () => setMode('focus'));
         document.getElementById('short-break-btn').addEventListener('click', () => setMode('short-break'));
         document.getElementById('long-break-btn').addEventListener('click', () => setMode('long-break'));
+
         // Synchronize inputs and sliders
         syncInputs(focusTimeSlider, focusTimeInput);
         syncInputs(shortBreakTimeSlider, shortBreakTimeInput);
         syncInputs(longBreakTimeSlider, longBreakTimeInput);
         syncInputs(sessionsCountSlider, sessionsCountInput);
         syncInputs(totalDurationSlider, totalDurationInput);
+
         // Additional sync for total duration
         totalDurationInput.addEventListener('input', () => {
             totalDurationSlider.value = totalDurationInput.value;
