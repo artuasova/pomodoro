@@ -1,9 +1,10 @@
 const CACHE_NAME = 'pomodoro-timer-v1';
+// Используем относительные пути
 const urlsToCache = [
-  '/',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  './',
+  './manifest.json',
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png'
 ];
 
 // Установка service worker
