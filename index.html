@@ -1112,7 +1112,7 @@
             const centerY = canvasHeight / 2;
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return;
-            const lineWidth = Math.max(8, Math.min(15, radius / 15));
+            const lineWidth = Math.max(10, Math.min(20, radius / 10));
             const elapsed = (currentTime - startTime) / 1000;
             timeRemaining = Math.max(0, totalTime - elapsed);
             if (timeRemaining <= 0) {
@@ -1166,7 +1166,7 @@
             const centerY = canvasHeight / 2;
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return;
-            const lineWidth = Math.max(8, Math.min(15, radius / 15));
+            const lineWidth = Math.max(10, Math.min(20, radius / 10));
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
             ctx.lineWidth = lineWidth;
