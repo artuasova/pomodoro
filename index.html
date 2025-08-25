@@ -729,6 +729,49 @@
             'short-break': 5 * 60,
             'long-break': 15 * 60
         };
+
+        // === НОВЫЙ ОБЪЕКТ ДЛЯ АУДИОФАЙЛОВ ===
+        const AUDIO_FILES = {
+            focus: {
+                start: [
+                    "audio/focus_start_1.mp3",
+                    "audio/focus_start_2.mp3",
+                    "audio/focus_start_3.mp3"
+                ],
+                end: [
+                    "audio/focus_end_1.mp3",
+                    "audio/focus_end_2.mp3",
+                    "audio/focus_end_3.mp3"
+                ]
+            },
+            'short-break': {
+                start: [
+                    "audio/short-break_start_1.mp3",
+                    "audio/short-break_start_2.mp3",
+                    "audio/short-break_start_3.mp3"
+                ],
+                end: [
+                    "audio/short-break_end_1.mp3",
+                    "audio/short-break_end_2.mp3",
+                    "audio/short-break_end_3.mp3"
+                ]
+            },
+            'long-break': {
+                start: [
+                    "audio/long-break_start_1.mp3",
+                    "audio/long-break_start_2.mp3",
+                    "audio/long-break_start_3.mp3"
+                ],
+                end: [
+                    "audio/long-break_end_1.mp3",
+                    "audio/long-break_end_2.mp3",
+                    "audio/long-break_end_3.mp3"
+                ]
+            }
+        };
+        // === КОНЕЦ НОВОГО ОБЪЕКТА ===
+
+        // Фразы теперь используются только для уведомлений
         const PHRASES = {
             focus: {
                 start: ["Приступаем к работе! Время сосредоточиться.", "Начинаем сессию фокусировки. Вперёд!", "Поехали! Время сосредоточиться."],
@@ -1030,6 +1073,62 @@
             }
         }
         
+        // === НОВАЯ ФУНКЦИЯ ВОСПРОИЗВЕДЕНИЯ АУДИО ===
+        /**
+         * Воспроизводит случайный аудиофайл для заданного режима и действия.
+         * @param {string} mode - Режим ('focus', 'short-break', 'long-break').
+         * @param {string} action - Действие ('start' или 'end').
+         */
+        async function playAudio(mode, action) {
+            const files = AUDIO_FILES[mode]?.[action];
+            if (!files || files.length === 0) {
+                console.warn(`Нет аудиофайлов для ${mode} ${action}`);
+                return;
+            }
+
+            // Выбираем случайный файл
+            const randomIndex = Math.floor(Math.random() * files.length);
+            const audioPath = files[randomIndex];
+
+            // Показываем индикатор загрузки
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'flex';
+            }
+
+            try {
+                // Создаем новый объект Audio
+                const audio = new Audio(audioPath);
+
+                // Воспроизводим аудио
+                await audio.play();
+
+                // Скрываем индикатор загрузки после начала воспроизведения
+                audio.addEventListener('playing', () => {
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                }, { once: true }); // once: true чтобы обработчик удалился после срабатывания
+
+                // Также скрываем индикатор при ошибке
+                audio.addEventListener('error', (e) => {
+                    console.error("Ошибка воспроизведения аудио:", e);
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                    // Можно показать сообщение пользователю, если аудио не воспроизводится
+                }, { once: true });
+
+            } catch (error) {
+                console.error("Ошибка при попытке воспроизвести аудио:", error);
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+                // Обработка ошибок воспроизведения (например, автозапуск запрещен браузером)
+                // Пользователю может потребоваться "разрешить" воспроизведение, кликнув куда-нибудь
+            }
+        }
+        // === КОНЕЦ НОВОЙ ФУНКЦИИ ===
+        
         // Improved session counter rendering
         function drawSessionItems() {
             sessionCounterContainer.innerHTML = '';
@@ -1156,99 +1255,7 @@
             return phrases[randomIndex];
         }
         
-        async function playTTS(mode, action) {
-            const prompt = getRandomPhrase(mode, action);
-            const voice = 'Zephyr';
-            loadingIndicator.style.display = 'flex';
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-            try {
-                const payload = {
-                    contents: [{
-                        parts: [{ text: prompt }]
-                    }],
-                    generationConfig: {
-                        responseModalities: ["AUDIO"],
-                        speechConfig: {
-                            voiceConfig: {
-                                prebuiltVoiceConfig: { voiceName: voice }
-                            }
-                        }
-                    },
-                    model: "gemini-2.5-flash-preview-tts"
-                };
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status} ${response.statusText}`);
-                }
-                const result = await response.json();
-                const part = result?.candidates?.[0]?.content?.parts?.[0];
-                const audioData = part?.inlineData?.data;
-                const mimeType = part?.inlineData?.mimeType;
-                if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
-                    const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
-                    const pcmData = base64ToArrayBuffer(audioData);
-                    const pcm16 = new Int16Array(pcmData);
-                    const wavBlob = pcmToWav(pcm16, sampleRate);
-                    const audioUrl = URL.createObjectURL(wavBlob);
-                    const audio = new Audio(audioUrl);
-                    await audio.play();
-                } else {
-                    console.error("Could not get audio data from API response.");
-                }
-            } catch (error) {
-                console.error("Error generating TTS:", error);
-            } finally {
-                loadingIndicator.style.display = 'none';
-            }
-        }
-        
-        function base64ToArrayBuffer(base64) {
-            const binaryString = window.atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-        
-        function pcmToWav(pcmData, sampleRate) {
-            const numChannels = 1;
-            const bitsPerSample = 16;
-            const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
-            const blockAlign = numChannels * (bitsPerSample / 8);
-            const buffer = new ArrayBuffer(44 + pcmData.byteLength);
-            const view = new DataView(buffer);
-            writeString(view, 0, 'RIFF');
-            view.setUint32(4, 36 + pcmData.byteLength, true);
-            writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, numChannels, true);
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, byteRate, true);
-            view.setUint16(32, blockAlign, true);
-            view.setUint16(34, bitsPerSample, true);
-            writeString(view, 36, 'data');
-            view.setUint32(40, pcmData.byteLength, true);
-            for (let i = 0; i < pcmData.length; i++) {
-                view.setInt16(44 + i * 2, pcmData[i], true);
-            }
-            return new Blob([view], { type: 'audio/wav' });
-        }
-        
-        function writeString(view, offset, string) {
-            for (let i = 0; i < string.length; i++) {
-                view.setUint8(offset + i, string.charCodeAt(i));
-            }
-        }
+        // === УДАЛЕНЫ СТАРЫЕ ФУНКЦИИ playTTS, base64ToArrayBuffer, pcmToWav, writeString ===
         
         function handleModeChange(mode, fromUserAction = false) {
             if (isRunning && fromUserAction) {
@@ -1284,6 +1291,7 @@
             }, 500);
         }
         
+        // === ИЗМЕНЕНИЕ В startTimer ===
         function startTimer() {
             if (isRunning) return;
             if (Notification.permission === 'default') {
@@ -1292,10 +1300,14 @@
             isRunning = true;
             startBtn.classList.add('hidden');
             pauseBtn.classList.remove('hidden');
-            playTTS(currentMode, 'start');
+            
+            // playTTS(currentMode, 'start'); // Удалено
+            playAudio(currentMode, 'start'); // Добавлено
+            
             startTime = performance.now();
             animationFrameId = requestAnimationFrame(updateDisplay);
         }
+        // === КОНЕЦ ИЗМЕНЕНИЯ ===
         
         function pauseTimer() {
             if (!isRunning) return;
@@ -1421,11 +1433,16 @@
             vibrationToggle.checked = settings.vibrationEnabled;
         }
         
+        // === ИЗМЕНЕНИЯ В endFocusAnimation и endBreakAnimation ===
         function endFocusAnimation() {
             stopTimer();
             vibrateDevice();
             showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
-            playTTS(currentMode, 'end');
+            
+            // playTTS(currentMode, 'end'); // Удалено
+            playAudio(currentMode, 'end'); // Добавлено
+            
+            // Update gamification stats
             sessionsCompleted++;
             completedSessions++;
             points += POINTS_PER_SESSION;
@@ -1457,14 +1474,18 @@
                 }
             }, 500);
         }
-        
+
         function endBreakAnimation() {
             stopTimer();
             vibrateDevice();
             showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
-            playTTS(currentMode, 'end');
+            
+            // playTTS(currentMode, 'end'); // Удалено
+            playAudio(currentMode, 'end'); // Добавлено
+            
             handleModeChange('focus');
         }
+        // === КОНЕЦ ИЗМЕНЕНИЙ ===
         
         // Tab switching functionality
         tabs.forEach(tab => {
