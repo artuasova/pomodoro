@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Pomodoro Таймер</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,6 +17,14 @@
             color: #334155;
             padding: 1rem;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         .container {
             background-color: #ffffff;
@@ -26,6 +34,7 @@
             width: 100%;
             max-width: 28rem;
             text-align: center;
+            position: relative;
         }
         .mode-button {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -53,6 +62,10 @@
             align-items: center;
             border-radius: 9999px;
             color: #ffffff;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         .control-button.start-btn {
             background: linear-gradient(145deg, #22c55e, #16a34a);
@@ -165,7 +178,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Improved session counter styles for better responsiveness */
         .session-counter {
             display: flex;
             flex-wrap: wrap;
@@ -422,7 +434,6 @@
         input:checked + .toggle-slider:before {
             transform: translateX(24px);
         }
-        
         /* Mobile-specific adjustments */
         @media (max-width: 480px) {
             .container {
@@ -457,7 +468,6 @@
                 margin-bottom: 0.75rem;
             }
         }
-        
         @media (max-width: 360px) {
             .container {
                 padding: 1rem;
@@ -478,7 +488,6 @@
                 font-size: 0.7rem;
             }
         }
-        
         /* Ultra-small screens */
         @media (max-width: 320px) {
             .container {
@@ -503,7 +512,6 @@
                 max-width: 80px;
             }
         }
-        
         /* Tabs styling */
         .tabs {
             display: flex;
@@ -527,6 +535,18 @@
         }
         .tab-content.active {
             display: block;
+        }
+        /* Button text for better accessibility */
+        .control-button .btn-text {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
     </style>
 </head>
@@ -566,36 +586,36 @@
             </div>
         </div>
         <div id="session-counter" class="session-counter">
-            <!-- Session items will be generated here -->
         </div>
         <div class="flex justify-center space-x-3">
             <div class="relative w-14 h-14">
-                <button id="start-btn" class="control-button start-btn shadow-lg absolute inset-0">
+                <button id="start-btn" class="control-button start-btn shadow-lg absolute inset-0" aria-label="Запустить таймер">
                     <div class="icon-container">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
                         </svg>
                     </div>
+                    <span class="btn-text">Запустить</span>
                 </button>
-                <button id="pause-btn" class="control-button pause-btn shadow-lg hidden absolute inset-0">
+                <button id="pause-btn" class="control-button pause-btn shadow-lg hidden absolute inset-0" aria-label="Приостановить таймер">
                     <div class="icon-container">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
                         </svg>
                     </div>
+                    <span class="btn-text">Пауза</span>
                 </button>
             </div>
-            <button id="reset-btn" class="control-button reset-btn shadow-lg">
+            <button id="reset-btn" class="control-button reset-btn shadow-lg" aria-label="Сбросить таймер">
                 <div class="icon-container">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </div>
+                <span class="btn-text">Сбросить</span>
             </button>
         </div>
     </div>
-    
-    <!-- Combined Profile/Settings/Achievements Modal -->
     <div id="combined-modal" class="modal hidden">
         <div class="modal-content">
             <div class="tabs">
@@ -603,8 +623,6 @@
                 <div class="tab" data-tab="settings">Настройки</div>
                 <div class="tab" data-tab="achievements">Достижения</div>
             </div>
-            
-            <!-- Profile Tab -->
             <div id="profile-tab" class="tab-content active">
                 <h2 class="text-xl font-bold mb-3">Профиль</h2>
                 <div class="settings-form">
@@ -622,8 +640,6 @@
                     <button id="cancel-profile-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
                 </div>
             </div>
-            
-            <!-- Settings Tab -->
             <div id="settings-tab" class="tab-content">
                 <h2 class="text-xl font-bold mb-3">Настройки</h2>
                 <div class="settings-control">
@@ -687,8 +703,6 @@
                     <button id="reset-default-btn" class="bg-gray-500 text-white py-1.5 px-3 rounded-lg hover:bg-gray-600 text-sm">Сброс</button>
                 </div>
             </div>
-            
-            <!-- Achievements Tab -->
             <div id="achievements-tab" class="tab-content">
                 <h2 class="text-xl font-bold mb-3">Достижения</h2>
                 <div class="gamification-stats">
@@ -722,15 +736,12 @@
             </div>
         </div>
     </div>
-    
     <script>
         let TIMER_MODES = {
             focus: 25 * 60,
             'short-break': 5 * 60,
             'long-break': 15 * 60
         };
-
-        // === НОВЫЙ ОБЪЕКТ ДЛЯ АУДИОФАЙЛОВ ===
         const AUDIO_FILES = {
             focus: {
                 start: [
@@ -769,9 +780,6 @@
                 ]
             }
         };
-        // === КОНЕЦ НОВОГО ОБЪЕКТА ===
-
-        // Фразы теперь используются только для уведомлений
         const PHRASES = {
             focus: {
                 start: ["Приступаем к работе! Время сосредоточиться.", "Начинаем сессию фокусировки. Вперёд!", "Поехали! Время сосредоточиться."],
@@ -877,13 +885,6 @@
             avatar: 'https://placehold.co/150x150/e2e8f0/cbd5e1?text=👤'
         };
         let vibrationEnabled = true;
-        
-        // Адаптивный размер шрифта для таймера
-        function getAdaptiveFontSize(canvasSize) {
-            if (canvasSize <= 300) return '3rem';
-            if (canvasSize <= 350) return '4rem';
-            return '5rem';
-        }
         
         function saveSettings() {
             const settings = {
@@ -1073,67 +1074,8 @@
             }
         }
         
-        // === НОВАЯ ФУНКЦИЯ ВОСПРОИЗВЕДЕНИЯ АУДИО ===
-        /**
-         * Воспроизводит случайный аудиофайл для заданного режима и действия.
-         * @param {string} mode - Режим ('focus', 'short-break', 'long-break').
-         * @param {string} action - Действие ('start' или 'end').
-         */
-        async function playAudio(mode, action) {
-            const files = AUDIO_FILES[mode]?.[action];
-            if (!files || files.length === 0) {
-                console.warn(`Нет аудиофайлов для ${mode} ${action}`);
-                return;
-            }
-
-            // Выбираем случайный файл
-            const randomIndex = Math.floor(Math.random() * files.length);
-            const audioPath = files[randomIndex];
-
-            // Показываем индикатор загрузки
-            if (loadingIndicator) {
-                loadingIndicator.style.display = 'flex';
-            }
-
-            try {
-                // Создаем новый объект Audio
-                const audio = new Audio(audioPath);
-
-                // Воспроизводим аудио
-                await audio.play();
-
-                // Скрываем индикатор загрузки после начала воспроизведения
-                audio.addEventListener('playing', () => {
-                    if (loadingIndicator) {
-                        loadingIndicator.style.display = 'none';
-                    }
-                }, { once: true }); // once: true чтобы обработчик удалился после срабатывания
-
-                // Также скрываем индикатор при ошибке
-                audio.addEventListener('error', (e) => {
-                    console.error("Ошибка воспроизведения аудио:", e);
-                    if (loadingIndicator) {
-                        loadingIndicator.style.display = 'none';
-                    }
-                    // Можно показать сообщение пользователю, если аудио не воспроизводится
-                }, { once: true });
-
-            } catch (error) {
-                console.error("Ошибка при попытке воспроизвести аудио:", error);
-                if (loadingIndicator) {
-                    loadingIndicator.style.display = 'none';
-                }
-                // Обработка ошибок воспроизведения (например, автозапуск запрещен браузером)
-                // Пользователю может потребоваться "разрешить" воспроизведение, кликнув куда-нибудь
-            }
-        }
-        // === КОНЕЦ НОВОЙ ФУНКЦИИ ===
-        
-        // Improved session counter rendering
         function drawSessionItems() {
             sessionCounterContainer.innerHTML = '';
-            
-            // Create groups of sessions based on sessionsInCycle
             const groups = [];
             for (let i = 0; i < totalSessions; i += sessionsInCycle) {
                 const group = [];
@@ -1142,12 +1084,9 @@
                 }
                 groups.push(group);
             }
-            
-            // Render each group
             groups.forEach((group, groupIndex) => {
                 const groupContainer = document.createElement('div');
                 groupContainer.classList.add('session-group');
-                
                 group.forEach((sessionIndex) => {
                     const sessionItem = document.createElement('div');
                     sessionItem.classList.add('session-item');
@@ -1156,10 +1095,7 @@
                     }
                     groupContainer.appendChild(sessionItem);
                 });
-                
                 sessionCounterContainer.appendChild(groupContainer);
-                
-                // Add divider between groups (except after the last group)
                 if (groupIndex < groups.length - 1) {
                     const divider = document.createElement('div');
                     divider.classList.add('session-divider');
@@ -1176,7 +1112,7 @@
             const centerY = canvasHeight / 2;
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return;
-            const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
+            const lineWidth = Math.max(8, Math.min(15, radius / 15));
             const elapsed = (currentTime - startTime) / 1000;
             timeRemaining = Math.max(0, totalTime - elapsed);
             if (timeRemaining <= 0) {
@@ -1207,8 +1143,6 @@
             const seconds = Math.round(timeRemaining % 60);
             const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             document.title = `${timeText} - Pomodoro`;
-            
-            // Адаптивный размер шрифта
             const fontSize = getAdaptiveFontSize(Math.min(canvasWidth, canvasHeight));
             ctx.font = `bold ${fontSize} Inter, sans-serif`;
             ctx.fillStyle = '#1e293b';
@@ -1232,15 +1166,12 @@
             const centerY = canvasHeight / 2;
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return;
-            const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
-            
+            const lineWidth = Math.max(8, Math.min(15, radius / 15));
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
             ctx.lineWidth = lineWidth;
             ctx.strokeStyle = '#e2e8f0';
             ctx.stroke();
-            
-            // Адаптивный размер шрифта
             const fontSize = getAdaptiveFontSize(Math.min(canvasWidth, canvasHeight));
             ctx.font = `bold ${fontSize} Inter, sans-serif`;
             ctx.fillStyle = '#1e293b';
@@ -1249,13 +1180,50 @@
             ctx.fillText(timeText, centerX, centerY);
         }
         
+        function getAdaptiveFontSize(canvasSize) {
+            if (canvasSize <= 300) return '3rem';
+            if (canvasSize <= 350) return '4rem';
+            return '5rem';
+        }
+        
         function getRandomPhrase(mode, action) {
             const phrases = PHRASES[mode][action];
             const randomIndex = Math.floor(Math.random() * phrases.length);
             return phrases[randomIndex];
         }
         
-        // === УДАЛЕНЫ СТАРЫЕ ФУНКЦИИ playTTS, base64ToArrayBuffer, pcmToWav, writeString ===
+        async function playAudio(mode, action) {
+            const files = AUDIO_FILES[mode]?.[action];
+            if (!files || files.length === 0) {
+                console.warn(`Нет аудиофайлов для ${mode} ${action}`);
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * files.length);
+            const audioPath = files[randomIndex];
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'flex';
+            }
+            try {
+                const audio = new Audio(audioPath);
+                await audio.play();
+                audio.addEventListener('playing', () => {
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                }, { once: true });
+                audio.addEventListener('error', (e) => {
+                    console.error("Ошибка воспроизведения аудио:", e);
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                }, { once: true });
+            } catch (error) {
+                console.error("Ошибка при попытке воспроизвести аудио:", error);
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+        }
         
         function handleModeChange(mode, fromUserAction = false) {
             if (isRunning && fromUserAction) {
@@ -1291,7 +1259,6 @@
             }, 500);
         }
         
-        // === ИЗМЕНЕНИЕ В startTimer ===
         function startTimer() {
             if (isRunning) return;
             if (Notification.permission === 'default') {
@@ -1300,14 +1267,10 @@
             isRunning = true;
             startBtn.classList.add('hidden');
             pauseBtn.classList.remove('hidden');
-            
-            // playTTS(currentMode, 'start'); // Удалено
-            playAudio(currentMode, 'start'); // Добавлено
-            
+            playAudio(currentMode, 'start');
             startTime = performance.now();
             animationFrameId = requestAnimationFrame(updateDisplay);
         }
-        // === КОНЕЦ ИЗМЕНЕНИЯ ===
         
         function pauseTimer() {
             if (!isRunning) return;
@@ -1433,16 +1396,11 @@
             vibrationToggle.checked = settings.vibrationEnabled;
         }
         
-        // === ИЗМЕНЕНИЯ В endFocusAnimation и endBreakAnimation ===
         function endFocusAnimation() {
             stopTimer();
             vibrateDevice();
             showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
-            
-            // playTTS(currentMode, 'end'); // Удалено
-            playAudio(currentMode, 'end'); // Добавлено
-            
-            // Update gamification stats
+            playAudio(currentMode, 'end');
             sessionsCompleted++;
             completedSessions++;
             points += POINTS_PER_SESSION;
@@ -1474,29 +1432,20 @@
                 }
             }, 500);
         }
-
+        
         function endBreakAnimation() {
             stopTimer();
             vibrateDevice();
             showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
-            
-            // playTTS(currentMode, 'end'); // Удалено
-            playAudio(currentMode, 'end'); // Добавлено
-            
+            playAudio(currentMode, 'end');
             handleModeChange('focus');
         }
-        // === КОНЕЦ ИЗМЕНЕНИЙ ===
         
-        // Tab switching functionality
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const tabName = tab.getAttribute('data-tab');
-                
-                // Update active tab
                 tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                
-                // Show active content
                 tabContents.forEach(content => {
                     content.classList.remove('active');
                     if (content.id === `${tabName}-tab`) {
@@ -1506,16 +1455,11 @@
             });
         });
         
-        // Open combined modal with profile tab active
         profileDisplay.addEventListener('click', () => {
-            // Set profile inputs to current values
             profileNameInput.value = profile.name;
             combinedModal.classList.remove('hidden');
-            
-            // Activate profile tab
             tabs.forEach(t => t.classList.remove('active'));
             document.querySelector('.tab[data-tab="profile"]').classList.add('active');
-            
             tabContents.forEach(content => {
                 content.classList.remove('active');
                 if (content.id === 'profile-tab') {
@@ -1524,7 +1468,6 @@
             });
         });
         
-        // Open combined modal with settings tab active
         settingsBtn.addEventListener('click', () => {
             focusTimeSlider.value = TIMER_MODES.focus / 60;
             focusTimeInput.value = TIMER_MODES.focus / 60;
@@ -1537,11 +1480,8 @@
             totalDurationSlider.value = totalDurationInput.value;
             vibrationToggle.checked = vibrationEnabled;
             combinedModal.classList.remove('hidden');
-            
-            // Activate settings tab
             tabs.forEach(t => t.classList.remove('active'));
             document.querySelector('.tab[data-tab="settings"]').classList.add('active');
-            
             tabContents.forEach(content => {
                 content.classList.remove('active');
                 if (content.id === 'settings-tab') {
@@ -1550,15 +1490,11 @@
             });
         });
         
-        // Open combined modal with achievements tab active
         achievementsBtn.addEventListener('click', () => {
             combinedModal.classList.remove('hidden');
             updateGamificationUI();
-            
-            // Activate achievements tab
             tabs.forEach(t => t.classList.remove('active'));
             document.querySelector('.tab[data-tab="achievements"]').classList.add('active');
-            
             tabContents.forEach(content => {
                 content.classList.remove('active');
                 if (content.id === 'achievements-tab') {
@@ -1567,7 +1503,6 @@
             });
         });
         
-        // Save profile from modal
         saveProfileBtn.addEventListener('click', () => {
             const newName = profileNameInput.value.trim();
             const newFile = profileAvatarFile.files[0];
@@ -1590,12 +1525,10 @@
             }
         });
         
-        // Cancel profile changes
         cancelProfileBtn.addEventListener('click', () => {
             combinedModal.classList.add('hidden');
         });
         
-        // Save settings from modal
         saveSettingsBtn.addEventListener('click', () => {
             const newFocusTime = parseFloat(focusTimeInput.value) * 60;
             const newShortBreakTime = parseFloat(shortBreakTimeInput.value) * 60;
@@ -1635,24 +1568,20 @@
             }
         });
         
-        // Cancel settings and close modal
         cancelSettingsBtn.addEventListener('click', () => {
             combinedModal.classList.add('hidden');
         });
         
-        // Reset settings to default values
         resetDefaultBtn.addEventListener('click', () => {
             setDifficultyLevel('standard');
             difficultyLevel.value = 'standard';
             vibrationToggle.checked = DEFAULT_SETTINGS.vibrationEnabled;
         });
         
-        // Close achievements and modal
         closeAchievementsBtn.addEventListener('click', () => {
             combinedModal.classList.add('hidden');
         });
         
-        // Handle difficulty level change
         difficultyLevel.addEventListener('change', (e) => {
             setDifficultyLevel(e.target.value);
         });
@@ -1678,9 +1607,14 @@
         
         window.addEventListener('resize', resizeCanvas);
         
+        // Используем touchstart и touchend для лучшей совместимости с мобильными устройствами
         startBtn.addEventListener('click', startTimer);
+        startBtn.addEventListener('touchstart', startTimer);
         pauseBtn.addEventListener('click', pauseTimer);
+        pauseBtn.addEventListener('touchstart', pauseTimer);
         resetBtn.addEventListener('click', resetTimer);
+        resetBtn.addEventListener('touchstart', resetTimer);
+        
         document.getElementById('focus-btn').addEventListener('click', () => handleModeChange('focus', true));
         document.getElementById('short-break-btn').addEventListener('click', () => handleModeChange('short-break', true));
         document.getElementById('long-break-btn').addEventListener('click', () => handleModeChange('long-break', true));
@@ -1701,4 +1635,3 @@
     </script>
 </body>
 </html>
-
