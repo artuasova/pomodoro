@@ -571,33 +571,9 @@
             justify-content: center;
             font-size: 1.5rem;
         }
-        /* Install prompt */
-        #installPrompt {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #3b82f6;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 50px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: none;
-            z-index: 1000;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 16px;
-        }
-        #installPrompt.show {
-            display: block;
-        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <!-- Install prompt -->
-    <div id="installPrompt" class="show">
-        Установить приложение
-    </div>
     
     <div class="container">
         <div class="flex items-center justify-between mb-4">
@@ -798,36 +774,6 @@
             });
         }
 
-        // PWA Install prompt
-        let deferredPrompt;
-        const installPrompt = document.getElementById('installPrompt');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Предотвращаем автоматическое отображение баннера
-            e.preventDefault();
-            // Сохраняем событие для последующего использования
-            deferredPrompt = e;
-            // Показываем наш собственный баннер
-            installPrompt.classList.add('show');
-        });
-
-        installPrompt.addEventListener('click', () => {
-            // Скрываем наш баннер
-            installPrompt.classList.remove('show');
-            // Показываем стандартный баннер установки
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                // Ждем ответа пользователя
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                    } else {
-                        console.log('User dismissed the install prompt');
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        });
 
         // Скрываем баннер, если приложение уже установлено
         window.addEventListener('appinstalled', () => {
