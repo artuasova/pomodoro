@@ -444,6 +444,7 @@
         input:checked + .toggle-slider:before {
             transform: translateX(24px);
         }
+        
         /* Mobile-specific adjustments */
         @media (max-width: 480px) {
             .container {
@@ -478,6 +479,7 @@
                 margin-bottom: 0.75rem;
             }
         }
+        
         @media (max-width: 360px) {
             .container {
                 padding: 1rem;
@@ -498,6 +500,7 @@
                 font-size: 0.7rem;
             }
         }
+        
         /* Ultra-small screens */
         @media (max-width: 320px) {
             .container {
@@ -522,6 +525,7 @@
                 max-width: 80px;
             }
         }
+        
         /* Tabs styling */
         .tabs {
             display: flex;
@@ -546,6 +550,7 @@
         .tab-content.active {
             display: block;
         }
+        
         /* Button text for better accessibility */
         .control-button .btn-text {
             position: absolute;
@@ -558,28 +563,72 @@
             white-space: nowrap;
             border: 0;
         }
-        /* Fix for iOS Safari button issues */
-        .control-button {
+        
+        /* Music button styles */
+        .music-btn {
+            background: linear-gradient(145deg, #8b5cf6, #7c3aed);
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.5), 0 4px 6px -2px rgba(139, 92, 246, 0.5);
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 9999px;
+            color: #ffffff;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            position: relative;
+        }
+        .music-btn:active {
+            transform: scale(0.95);
+        }
+        .music-btn svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        
+        /* Volume slider styles */
+        #volume-slider {
+            -webkit-appearance: none;
+            width: 100px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        #volume-slider:hover {
+            opacity: 1;
+        }
+        #volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #8b5cf6;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        /* Fallback avatar */
-        .fallback-avatar {
-            background-color: #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+        #volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #8b5cf6;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    
     <div class="container">
         <div class="flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold text-gray-800">Таймер Pomodoro</h1>
             <div id="profile-display" class="profile-display">
-                <div id="profile-avatar" class="profile-avatar fallback-avatar">👤</div>
+                <img id="profile-avatar" class="profile-avatar" src="https://placehold.co/150x150/e2e8f0/cbd5e1?text=👤" alt="User Avatar">
                 <span id="profile-name" class="profile-name">Пользователь</span>
             </div>
         </div>
@@ -593,7 +642,7 @@
                 <button id="settings-btn" class="py-1.5 px-2.5 rounded-full text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                     </svg>
                 </button>
                 <button id="achievements-btn" class="py-1.5 px-2.5 rounded-full text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors">
@@ -610,10 +659,11 @@
             </div>
         </div>
         <div id="session-counter" class="session-counter">
+            <!-- Session items will be generated here -->
         </div>
         <div class="flex justify-center space-x-3">
             <div class="relative w-14 h-14">
-                <button id="start-btn" class="control-button start-btn shadow-lg absolute inset-0" aria-label="Запустить таймер">
+                <button id="start-btn" class="control-button start-btn shadow-lg absolute inset-0">
                     <div class="icon-container">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
@@ -621,7 +671,7 @@
                     </div>
                     <span class="btn-text">Запустить</span>
                 </button>
-                <button id="pause-btn" class="control-button pause-btn shadow-lg hidden absolute inset-0" aria-label="Приостановить таймер">
+                <button id="pause-btn" class="control-button pause-btn shadow-lg hidden absolute inset-0">
                     <div class="icon-container">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
@@ -630,7 +680,7 @@
                     <span class="btn-text">Пауза</span>
                 </button>
             </div>
-            <button id="reset-btn" class="control-button reset-btn shadow-lg" aria-label="Сбросить таймер">
+            <button id="reset-btn" class="control-button reset-btn shadow-lg">
                 <div class="icon-container">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -639,191 +689,226 @@
                 <span class="btn-text">Сбросить</span>
             </button>
         </div>
+        
+        <!-- Music controls -->
+        <div class="flex justify-center items-center space-x-4 mt-4">
+            <div class="flex items-center">
+                <button id="music-toggle-btn" class="music-btn shadow-lg" aria-label="Включить фоновую музыку">
+                    <div class="icon-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 4.5a.75.75 0 0 0-.75.75v13.5a.75.75 0 0 0 1.5 0V5.25a.75.75 0 0 0-.75-.75z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5a.75.75 0 0 0-.75.75v13.5a.75.75 0 0 0 1.5 0V5.25a.75.75 0 0 0-.75-.75z" />
+                        </svg>
+                    </div>
+                </button>
+                <button id="music-mute-btn" class="music-btn shadow-lg hidden" aria-label="Выключить фоновую музыку">
+                    <div class="icon-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 0 1 0 7.072m2.828-9.9a9 9 0 0 1 0 12.728M6.75 4.5a.75.75 0 0 0-.75.75v13.5a.75.75 0 0 0 1.5 0V5.25a.75.75 0 0 0-.75-.75z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5a.75.75 0 0 0-.75.75v13.5a.75.75 0 0 0 1.5 0V5.25a.75.75 0 0 0-.75-.75z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 12-5.25 5.25m0 0a.75.75 0 0 1-1.06 0 .75.75 0 0 1 0-1.06L16.94 12l-4.44-4.44a.75.75 0 0 1 1.06-1.06L18.75 12Z" />
+                        </svg>
+                    </div>
+                </button>
+            </div>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" class="w-24" title="Громкость">
+        </div>
     </div>
-    <div id="combined-modal" class="modal hidden">
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
         <div class="modal-content">
-            <div class="tabs">
-                <div class="tab active" data-tab="profile">Профиль</div>
-                <div class="tab" data-tab="settings">Настройки</div>
-                <div class="tab" data-tab="achievements">Достижения</div>
+            <h2 class="text-xl font-bold mb-3">Настройки</h2>
+            <div class="settings-control">
+                <label for="difficulty-level">Уровни сложности:</label>
+                <select id="difficulty-level" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
+                    <option value="standard">Стандартный (25 / 5 / 15 мин)</option>
+                    <option value="intensive">Интенсивный (45 / 15 / 60 мин)</option>
+                    <option value="study">Учеба (50 / 10 / 25 мин)</option>
+                    <option value="work">Работа (90 / 20 / 45 мин)</option>
+                    <option value="creative">Креатив (15 / 3 / 10 мин)</option>
+                    <option value="custom">Свои настройки</option>
+                </select>
             </div>
-            <div id="profile-tab" class="tab-content active">
-                <h2 class="text-xl font-bold mb-3">Профиль</h2>
-                <div class="settings-form">
-                    <div class="settings-control">
-                        <label for="profile-name-input">Ваше имя:</label>
-                        <input type="text" id="profile-name-input" placeholder="Введите ваше имя" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
-                    </div>
-                    <div class="settings-control">
-                        <label for="profile-avatar-file">Загрузить аватарку:</label>
-                        <input type="file" id="profile-avatar-file" accept="image/*" class="w-full mt-1 p-1 rounded-lg border border-gray-300 text-sm">
-                    </div>
-                </div>
-                <div class="flex justify-center space-x-2 mt-3">
-                    <button id="save-profile-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
-                    <button id="cancel-profile-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
-                </div>
-            </div>
-            <div id="settings-tab" class="tab-content">
-                <h2 class="text-xl font-bold mb-3">Настройки</h2>
+            <div class="settings-form">
                 <div class="settings-control">
-                    <label for="difficulty-level">Уровни сложности:</label>
-                    <select id="difficulty-level" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
-                        <option value="standard">Стандартный (25 / 5 / 15 мин)</option>
-                        <option value="intensive">Интенсивный (45 / 15 / 60 мин)</option>
-                        <option value="study">Учеба (50 / 10 / 25 мин)</option>
-                        <option value="work">Работа (90 / 20 / 45 мин)</option>
-                        <option value="creative">Креатив (15 / 3 / 10 мин)</option>
-                        <option value="custom">Свои настройки</option>
-                    </select>
-                </div>
-                <div class="settings-form">
-                    <div class="settings-control">
-                        <label for="focus-time">Фокус (минуты):</label>
-                        <div class="flex items-center space-x-2 mt-1">
-                            <input type="range" id="focus-time-slider" min="1" max="60" value="25">
-                            <input type="number" id="focus-time" min="1" max="60" value="25" class="text-center">
-                        </div>
-                    </div>
-                    <div class="settings-control">
-                        <label for="short-break-time">Короткий перерыв (минуты):</label>
-                        <div class="flex items-center space-x-2 mt-1">
-                            <input type="range" id="short-break-time-slider" min="1" max="15" value="5">
-                            <input type="number" id="short-break-time" min="1" max="15" value="5" class="text-center">
-                        </div>
-                    </div>
-                    <div class="settings-control">
-                        <label for="long-break-time">Длинный перерыв (минуты):</label>
-                        <div class="flex items-center space-x-2 mt-1">
-                            <input type="range" id="long-break-time-slider" min="5" max="30" value="15">
-                            <input type="number" id="long-break-time" min="5" max="30" value="15" class="text-center">
-                        </div>
-                    </div>
-                    <div class="settings-control">
-                        <label for="sessions-count-slider">Сессий до длинного перерыва:</label>
-                        <div class="flex items-center space-x-2 mt-1">
-                            <input type="range" id="sessions-count-slider" min="1" max="10" value="4">
-                            <input type="number" id="sessions-count-input" min="1" max="10" value="4" class="text-center">
-                        </div>
-                    </div>
-                    <div class="settings-control">
-                        <label for="total-duration">Общая длительность (часы):</label>
-                        <div class="flex items-center space-x-2 mt-1">
-                            <input type="range" id="total-duration-slider" min="0.5" max="12" step="0.5" value="8">
-                            <input type="number" id="total-duration-input" min="0.5" max="12" step="0.5" value="8" class="text-center">
-                        </div>
-                    </div>
-                    <div class="settings-control flex items-center justify-between">
-                        <label for="vibration-toggle" class="mb-0">Включить вибрацию:</label>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="vibration-toggle">
-                            <span class="toggle-slider"></span>
-                        </label>
+                    <label for="focus-time">Фокус (минуты):</label>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <input type="range" id="focus-time-slider" min="1" max="60" value="25">
+                        <input type="number" id="focus-time" min="1" max="60" value="25" class="text-center">
                     </div>
                 </div>
-                <div class="flex flex-wrap justify-center gap-2 mt-3">
-                    <button id="save-settings-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
-                    <button id="cancel-settings-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
-                    <button id="reset-default-btn" class="bg-gray-500 text-white py-1.5 px-3 rounded-lg hover:bg-gray-600 text-sm">Сброс</button>
+                <div class="settings-control">
+                    <label for="short-break-time">Короткий перерыв (минуты):</label>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <input type="range" id="short-break-time-slider" min="1" max="15" value="5">
+                        <input type="number" id="short-break-time" min="1" max="15" value="5" class="text-center">
+                    </div>
+                </div>
+                <div class="settings-control">
+                    <label for="long-break-time">Длинный перерыв (минуты):</label>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <input type="range" id="long-break-time-slider" min="5" max="30" value="15">
+                        <input type="number" id="long-break-time" min="5" max="30" value="15" class="text-center">
+                    </div>
+                </div>
+                <div class="settings-control">
+                    <label for="sessions-count-slider">Сессий до длинного перерыва:</label>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <input type="range" id="sessions-count-slider" min="1" max="10" value="4">
+                        <input type="number" id="sessions-count-input" min="1" max="10" value="4" class="text-center">
+                    </div>
+                </div>
+                <div class="settings-control">
+                    <label for="total-duration">Общая длительность (часы):</label>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <input type="range" id="total-duration-slider" min="0.5" max="12" step="0.5" value="8">
+                        <input type="number" id="total-duration-input" min="0.5" max="12" step="0.5" value="8" class="text-center">
+                    </div>
+                </div>
+                
+                <!-- Music settings -->
+                <div class="settings-control pt-4 border-t border-gray-200">
+                    <label class="font-bold mb-2 block">Фоновая музыка:</label>
+                    <div class="flex flex-col space-y-2">
+                        <select id="music-type-select" class="w-full p-2 rounded-lg border border-gray-300">
+                            <option value="none">Без музыки</option>
+                            <option value="rain">Дождь</option>
+                            <option value="ocean">Океан</option>
+                            <option value="forest">Лес</option>
+                            <option value="cafe">Кофе</option>
+                            <option value="pink-noise">Розовый шум</option>
+                            <option value="brown-noise">Коричневый шум</option>
+                        </select>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm">Громкость:</span>
+                            <input type="range" id="settings-volume-slider" min="0" max="1" step="0.01" value="0.5" class="flex-grow">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-control flex items-center justify-between">
+                    <label for="vibration-toggle" class="mb-0">Включить вибрацию:</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="vibration-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
                 </div>
             </div>
-            <div id="achievements-tab" class="tab-content">
-                <h2 class="text-xl font-bold mb-3">Достижения</h2>
-                <div class="gamification-stats">
-                    <h2 class="text-lg font-bold mb-3 text-gray-700">Прогресс</h2>
-                    <div class="grid grid-cols-3 gap-3 mb-3">
-                        <div class="stat-item">
-                            <span id="points-display" class="stat-value">0</span>
-                            <span>Очки</span>
-                        </div>
-                        <div class="stat-item">
-                            <span id="level-display" class="stat-value">1</span>
-                            <span>Уровень</span>
-                        </div>
-                        <div class="stat-item">
-                            <span id="streak-display" class="stat-value">0</span>
-                            <span>Стрик</span>
-                        </div>
+            <div class="flex flex-wrap justify-center gap-2 mt-3">
+                <button id="save-settings-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
+                <button id="cancel-settings-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
+                <button id="reset-default-btn" class="bg-gray-500 text-white py-1.5 px-3 rounded-lg hover:bg-gray-600 text-sm">Сброс</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-3">Профиль 👤</h2>
+            <div class="settings-form">
+                <div class="settings-control">
+                    <label for="profile-name-input">Ваше имя:</label>
+                    <input type="text" id="profile-name-input" placeholder="Введите ваше имя" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
+                </div>
+                <div class="settings-control">
+                    <label for="profile-avatar-file">Загрузить аватарку:</label>
+                    <input type="file" id="profile-avatar-file" accept="image/*" class="w-full mt-1 p-1 rounded-lg border border-gray-300 text-sm">
+                </div>
+            </div>
+            <div class="flex justify-center space-x-2 mt-3">
+                <button id="save-profile-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
+                <button id="cancel-profile-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Achievements Modal -->
+    <div id="achievements-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-3">Достижения 🏆</h2>
+            <div class="gamification-stats">
+                <h2 class="text-lg font-bold mb-3 text-gray-700">Прогресс</h2>
+                <div class="grid grid-cols-3 gap-3 mb-3">
+                    <div class="stat-item">
+                        <span id="points-display" class="stat-value">0</span>
+                        <span>Очки</span>
                     </div>
-                    <div class="level-bar-container">
-                        <div id="level-bar" class="level-bar" style="width: 0%;">
-                            <span id="level-progress">0/100</span>
-                        </div>
+                    <div class="stat-item">
+                        <span id="level-display" class="stat-value">1</span>
+                        <span>Уровень</span>
                     </div>
-                    <h3 class="text-base font-bold mt-4 mb-2 text-gray-700">Достижения</h3>
-                    <div id="badge-grid" class="badge-grid">
+                    <div class="stat-item">
+                        <span id="streak-display" class="stat-value">0</span>
+                        <span>Стрик</span>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <button id="close-achievements-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Закрыть</button>
+                <div class="level-bar-container">
+                    <div id="level-bar" class="level-bar" style="width: 0%;">
+                        <span id="level-progress">0/100</span>
+                    </div>
                 </div>
+                <h3 class="text-base font-bold mt-4 mb-2 text-gray-700">Достижения</h3>
+                <div id="badge-grid" class="badge-grid">
+                    <!-- Badges will be rendered here by JavaScript -->
+                </div>
+            </div>
+            <div class="mt-3">
+                <button id="close-achievements-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Закрыть</button>
             </div>
         </div>
     </div>
     
     <script>
-        // PWA Service Worker регистрация
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // Используем относительный путь
-                navigator.serviceWorker.register('./sw.js').then(registration => {
-                    console.log('SW registered: ', registration);
-                }).catch(registrationError => {
-                    console.log('SW registration failed: ', registrationError);
-                });
-            });
-        }
-
-
-        // Скрываем баннер, если приложение уже установлено
-        window.addEventListener('appinstalled', () => {
-            installPrompt.classList.remove('show');
-            deferredPrompt = null;
-        });
-
         let TIMER_MODES = {
             focus: 25 * 60,
             'short-break': 5 * 60,
             'long-break': 15 * 60
         };
+        
+        // === НОВЫЙ ОБЪЕКТ ДЛЯ АУДИОФАЙЛОВ ===
         const AUDIO_FILES = {
             focus: {
                 start: [
-                    "audio/focus_start_1.mp3",
-                    "audio/focus_start_2.mp3",
-                    "audio/focus_start_3.mp3"
+                    "./audio/focus_start_1.mp3",
+                    "./audio/focus_start_2.mp3",
+                    "./audio/focus_start_3.mp3"
                 ],
                 end: [
-                    "audio/focus_end_1.mp3",
-                    "audio/focus_end_2.mp3",
-                    "audio/focus_end_3.mp3"
+                    "./audio/focus_end_1.mp3",
+                    "./audio/focus_end_2.mp3",
+                    "./audio/focus_end_3.mp3"
                 ]
             },
             'short-break': {
                 start: [
-                    "audio/short-break_start_1.mp3",
-                    "audio/short-break_start_2.mp3",
-                    "audio/short-break_start_3.mp3"
+                    "./audio/short-break_start_1.mp3",
+                    "./audio/short-break_start_2.mp3",
+                    "./audio/short-break_start_3.mp3"
                 ],
                 end: [
-                    "audio/short-break_end_1.mp3",
-                    "audio/short-break_end_2.mp3",
-                    "audio/short-break_end_3.mp3"
+                    "./audio/short-break_end_1.mp3",
+                    "./audio/short-break_end_2.mp3",
+                    "./audio/short-break_end_3.mp3"
                 ]
             },
             'long-break': {
                 start: [
-                    "audio/long-break_start_1.mp3",
-                    "audio/long-break_start_2.mp3",
-                    "audio/long-break_start_3.mp3"
+                    "./audio/long-break_start_1.mp3",
+                    "./audio/long-break_start_2.mp3",
+                    "./audio/long-break_start_3.mp3"
                 ],
                 end: [
-                    "audio/long-break_end_1.mp3",
-                    "audio/long-break_end_2.mp3",
-                    "audio/long-break_end_3.mp3"
+                    "./audio/long-break_end_1.mp3",
+                    "./audio/long-break_end_2.mp3",
+                    "./audio/long-break_end_3.mp3"
                 ]
             }
         };
+        // === КОНЕЦ НОВОГО ОБЪЕКТА ===
+        
+        // Фразы теперь используются только для уведомлений
         const PHRASES = {
             focus: {
                 start: ["Приступаем к работе! Время сосредоточиться.", "Начинаем сессию фокусировки. Вперёд!", "Поехали! Время сосредоточиться."],
@@ -847,7 +932,9 @@
             'long-break': 15,
             sessionsInCycle: 4,
             totalDuration: 8,
-            vibrationEnabled: true
+            vibrationEnabled: true,
+            musicType: 'none',
+            musicVolume: 0.5
         };
         const POINTS_PER_SESSION = 10;
         const LEVEL_UP_POINTS = 100;
@@ -876,7 +963,9 @@
         const settingsBtn = document.getElementById('settings-btn');
         const achievementsBtn = document.getElementById('achievements-btn');
         const profileDisplay = document.getElementById('profile-display');
-        const combinedModal = document.getElementById('combined-modal');
+        const settingsModal = document.getElementById('settings-modal');
+        const profileModal = document.getElementById('profile-modal');
+        const achievementsModal = document.getElementById('achievements-modal');
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
         const resetDefaultBtn = document.getElementById('reset-default-btn');
@@ -907,8 +996,14 @@
         const profileAvatarDisplay = document.getElementById('profile-avatar');
         const profileNameInput = document.getElementById('profile-name-input');
         const profileAvatarFile = document.getElementById('profile-avatar-file');
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Music elements
+        const musicToggleBtn = document.getElementById('music-toggle-btn');
+        const musicMuteBtn = document.getElementById('music-mute-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const settingsVolumeSlider = document.getElementById('settings-volume-slider');
+        const musicTypeSelect = document.getElementById('music-type-select');
+        
         let animationFrameId;
         let isRunning = false;
         let currentMode = 'focus';
@@ -926,50 +1021,23 @@
         let achievements = BADGES.map(b => ({ ...b }));
         let profile = {
             name: 'Пользователь',
-            avatar: null // Будем использовать null для отсутствующего аватара
+            avatar: 'https://placehold.co/150x150/e2e8f0/cbd5e1?text=👤'
         };
         let vibrationEnabled = true;
         
-        // Аудио контекст для обхода ограничений автовоспроизведения
+        // Music variables
+        let backgroundMusic = null;
+        let isMusicPlaying = false;
+        let currentMusicType = 'none';
+        let musicVolume = 0.5;
         let audioContext = null;
         let audioBuffers = {};
         
-        function initAudioContext() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            return audioContext;
-        }
-        
-        // Предзагрузка аудио файлов
-        async function preloadAudio() {
-            try {
-                initAudioContext();
-                // Собираем все пути к аудио файлам
-                const allAudioPaths = [];
-                for (const mode in AUDIO_FILES) {
-                    for (const action in AUDIO_FILES[mode]) {
-                        AUDIO_FILES[mode][action].forEach(path => {
-                            if (!allAudioPaths.includes(path)) {
-                                allAudioPaths.push(path);
-                            }
-                        });
-                    }
-                }
-                
-                // Загружаем все аудио файлы
-                for (const path of allAudioPaths) {
-                    try {
-                        const response = await fetch(path);
-                        const arrayBuffer = await response.arrayBuffer();
-                        audioBuffers[path] = await audioContext.decodeAudioData(arrayBuffer);
-                    } catch (e) {
-                        console.warn(`Не удалось загрузить аудио файл: ${path}`, e);
-                    }
-                }
-            } catch (e) {
-                console.error("Ошибка при предзагрузке аудио:", e);
-            }
+        // Адаптивный размер шрифта для таймера
+        function getAdaptiveFontSize(canvasSize) {
+            if (canvasSize <= 300) return '3rem';
+            if (canvasSize <= 350) return '4rem';
+            return '5rem';
         }
         
         function saveSettings() {
@@ -979,7 +1047,9 @@
                 'long-break': parseFloat(longBreakTimeInput.value),
                 sessionsInCycle: parseInt(sessionsCountInput.value),
                 totalDuration: parseFloat(totalDurationInput.value),
-                vibrationEnabled: vibrationToggle.checked
+                vibrationEnabled: vibrationToggle.checked,
+                musicType: currentMusicType,
+                musicVolume: musicVolume
             };
             localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
         }
@@ -993,6 +1063,8 @@
                 sessionsInCycle = settings.sessionsInCycle;
                 totalSessions = calculateTotalSessions(settings.totalDuration);
                 vibrationEnabled = settings.vibrationEnabled;
+                currentMusicType = settings.musicType || 'none';
+                musicVolume = settings.musicVolume || 0.5;
             } else {
                 saveSettings();
             }
@@ -1062,24 +1134,7 @@
         
         function updateProfileUI() {
             profileNameDisplay.textContent = profile.name;
-            if (profile.avatar) {
-                // Если есть аватар, создаем img элемент
-                let img = profileAvatarDisplay.querySelector('img');
-                if (!img) {
-                    // Удаляем fallback
-                    profileAvatarDisplay.innerHTML = '';
-                    img = document.createElement('img');
-                    img.classList.add('profile-avatar');
-                    img.style.cssText = 'width: 2.5rem; height: 2.5rem; border-radius: 9999px; border: 2px solid #3b82f6; object-fit: cover;';
-                    profileAvatarDisplay.appendChild(img);
-                }
-                img.src = profile.avatar;
-                img.alt = "User Avatar";
-            } else {
-                // Если нет аватара, показываем fallback
-                profileAvatarDisplay.innerHTML = '👤';
-                profileAvatarDisplay.className = 'profile-avatar fallback-avatar';
-            }
+            profileAvatarDisplay.src = profile.avatar;
         }
         
         function levelUp() {
@@ -1173,12 +1228,15 @@
         
         function showNotification(title, body) {
             if (Notification.permission === "granted") {
-                new Notification(title, { body: body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🍅</text></svg>' });
+                new Notification(title, { body: body, icon: 'https://placehold.co/150x150/e2e8f0/cbd5e1?text=🍅' });
             }
         }
         
+        // Improved session counter rendering
         function drawSessionItems() {
             sessionCounterContainer.innerHTML = '';
+            
+            // Create groups of sessions based on sessionsInCycle
             const groups = [];
             for (let i = 0; i < totalSessions; i += sessionsInCycle) {
                 const group = [];
@@ -1187,9 +1245,12 @@
                 }
                 groups.push(group);
             }
+            
+            // Render each group
             groups.forEach((group, groupIndex) => {
                 const groupContainer = document.createElement('div');
                 groupContainer.classList.add('session-group');
+                
                 group.forEach((sessionIndex) => {
                     const sessionItem = document.createElement('div');
                     sessionItem.classList.add('session-item');
@@ -1198,7 +1259,10 @@
                     }
                     groupContainer.appendChild(sessionItem);
                 });
+                
                 sessionCounterContainer.appendChild(groupContainer);
+                
+                // Add divider between groups (except after the last group)
                 if (groupIndex < groups.length - 1) {
                     const divider = document.createElement('div');
                     divider.classList.add('session-divider');
@@ -1215,7 +1279,7 @@
             const centerY = canvasHeight / 2;
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return;
-            const lineWidth = Math.max(8, Math.min(15, radius / 15));
+            const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
             const elapsed = (currentTime - startTime) / 1000;
             timeRemaining = Math.max(0, totalTime - elapsed);
             if (timeRemaining <= 0) {
@@ -1246,6 +1310,8 @@
             const seconds = Math.round(timeRemaining % 60);
             const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             document.title = `${timeText} - Pomodoro`;
+            
+            // Адаптивный размер шрифта
             const fontSize = getAdaptiveFontSize(Math.min(canvasWidth, canvasHeight));
             ctx.font = `bold ${fontSize} Inter, sans-serif`;
             ctx.fillStyle = '#1e293b';
@@ -1269,12 +1335,15 @@
             const centerY = canvasHeight / 2;
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return;
-            const lineWidth = Math.max(8, Math.min(15, radius / 15));
+            const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
+            
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
             ctx.lineWidth = lineWidth;
             ctx.strokeStyle = '#e2e8f0';
             ctx.stroke();
+            
+            // Адаптивный размер шрифта
             const fontSize = getAdaptiveFontSize(Math.min(canvasWidth, canvasHeight));
             ctx.font = `bold ${fontSize} Inter, sans-serif`;
             ctx.fillStyle = '#1e293b';
@@ -1283,75 +1352,211 @@
             ctx.fillText(timeText, centerX, centerY);
         }
         
-        function getAdaptiveFontSize(canvasSize) {
-            if (canvasSize <= 300) return '3rem';
-            if (canvasSize <= 350) return '4rem';
-            return '5rem';
-        }
-        
         function getRandomPhrase(mode, action) {
             const phrases = PHRASES[mode][action];
             const randomIndex = Math.floor(Math.random() * phrases.length);
             return phrases[randomIndex];
         }
         
-        // Используем Web Audio API для воспроизведения звука
+        // === НОВАЯ ФУНКЦИЯ ВОСПРОИЗВЕДЕНИЯ АУДИО ===
+        /**
+         * Воспроизводит случайный аудиофайл для заданного режима и действия.
+         * @param {string} mode - Режим ('focus', 'short-break', 'long-break').
+         * @param {string} action - Действие ('start' или 'end').
+         */
         async function playAudio(mode, action) {
             const files = AUDIO_FILES[mode]?.[action];
             if (!files || files.length === 0) {
                 console.warn(`Нет аудиофайлов для ${mode} ${action}`);
                 return;
             }
-            
-            // Инициализируем аудио контекст при первом взаимодействии
-            const context = initAudioContext();
-            
-            // Если контекст приостановлен, возобновляем его
-            if (context.state === 'suspended') {
-                await context.resume();
-            }
-            
-            const randomIndex = Math.floor(Math.random() * files.length);
-            const audioPath = files[randomIndex];
-            
+
             // Показываем индикатор загрузки
             if (loadingIndicator) {
                 loadingIndicator.style.display = 'flex';
             }
-            
+
             try {
-                // Проверяем, загружен ли аудио буфер
-                if (!audioBuffers[audioPath]) {
-                    // Если не загружен, загружаем его
-                    const response = await fetch(audioPath);
-                    const arrayBuffer = await response.arrayBuffer();
-                    audioBuffers[audioPath] = await context.decodeAudioData(arrayBuffer);
-                }
-                
-                // Создаем источник звука
-                const source = context.createBufferSource();
-                source.buffer = audioBuffers[audioPath];
-                source.connect(context.destination);
-                
-                // Воспроизводим звук
-                source.start();
-                
-                // Скрываем индикатор загрузки по завершении воспроизведения
-                source.onended = () => {
+                // Создаем новый объект Audio
+                const randomIndex = Math.floor(Math.random() * files.length);
+                const audioPath = files[randomIndex];
+                const audio = new Audio(audioPath);
+
+                // Воспроизводим аудио
+                await audio.play();
+
+                // Скрываем индикатор загрузки после начала воспроизведения
+                audio.addEventListener('playing', () => {
                     if (loadingIndicator) {
                         loadingIndicator.style.display = 'none';
                     }
-                };
-                
+                }, { once: true }); // once: true чтобы обработчик удалился после срабатывания
+
+                // Также скрываем индикатор при ошибке
+                audio.addEventListener('error', (e) => {
+                    console.error("Ошибка воспроизведения аудио:", e);
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                    // Можно показать сообщение пользователю, если аудио не воспроизводится
+                }, { once: true });
+
             } catch (error) {
-                console.error("Ошибка при воспроизведении аудио:", error);
+                console.error("Ошибка при попытке воспроизвести аудио:", error);
                 if (loadingIndicator) {
                     loadingIndicator.style.display = 'none';
                 }
-                // Показываем сообщение пользователю
-                showMessageBox("Не удалось воспроизвести звуковое уведомление", "error");
+                // Обработка ошибок воспроизведения (например, автозапуск запрещен браузером)
+                // Пользователю может потребоваться "разрешить" воспроизведение, кликнув куда-нибудь
             }
         }
+        // === КОНЕЦ НОВОЙ ФУНКЦИИ ===
+        
+        // === ФУНКЦИИ ДЛЯ ФОНОВОЙ МУЗЫКИ ===
+        
+        // Инициализация аудио контекста
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+        
+        // Пути к аудиофайлам музыки
+        const MUSIC_FILES = {
+            'rain': './audio/music_rain.mp3',
+            'ocean': './audio/music_ocean.mp3',
+            'forest': './audio/music_forest.mp3',
+            'cafe': './audio/music_cafe.mp3',
+            'pink-noise': './audio/music_pink_noise.mp3',
+            'brown-noise': './audio/music_brown_noise.mp3'
+        };
+        
+        // Загрузка и воспроизведение музыки
+        async function loadAndPlayMusic(type) {
+            if (type === 'none' || !MUSIC_FILES[type]) {
+                stopBackgroundMusic();
+                return;
+            }
+
+            try {
+                initAudioContext();
+                
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+
+                // Если уже играет та же музыка, просто возобновить
+                if (backgroundMusic && currentMusicType === type && backgroundMusic.buffer) {
+                    if (backgroundMusic.playbackState === 'finished') {
+                        // Если трек закончился, перезапустить
+                        backgroundMusic = audioContext.createBufferSource();
+                        backgroundMusic.buffer = audioBuffers[MUSIC_FILES[type]];
+                        backgroundMusic.connect(gainNode);
+                        backgroundMusic.loop = true;
+                        backgroundMusic.start();
+                    }
+                    return;
+                }
+
+                // Остановить текущую музыку
+                stopBackgroundMusic();
+
+                // Загрузить новый трек
+                if (!audioBuffers[MUSIC_FILES[type]]) {
+                    const response = await fetch(MUSIC_FILES[type]);
+                    const arrayBuffer = await response.arrayBuffer();
+                    audioBuffers[MUSIC_FILES[type]] = await audioContext.decodeAudioData(arrayBuffer);
+                }
+
+                // Создать Gain Node для управления громкостью
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = musicVolume;
+                gainNode.connect(audioContext.destination);
+
+                // Создать источник звука
+                backgroundMusic = audioContext.createBufferSource();
+                backgroundMusic.buffer = audioBuffers[MUSIC_FILES[type]];
+                backgroundMusic.connect(gainNode);
+                backgroundMusic.loop = true;
+                
+                // Сохранить ссылку на gainNode для регулировки громкости
+                backgroundMusic.gainNode = gainNode;
+
+                // Воспроизвести
+                backgroundMusic.start();
+                currentMusicType = type;
+                isMusicPlaying = true;
+                
+                // Обновить UI
+                updateMusicUI();
+                
+            } catch (error) {
+                console.error("Ошибка при загрузке/воспроизведении музыки:", error);
+                showMessageBox("Не удалось воспроизвести фоновую музыку", "error");
+            }
+        }
+        
+        // Остановка музыки
+        function stopBackgroundMusic() {
+            if (backgroundMusic) {
+                try {
+                    backgroundMusic.stop();
+                } catch (e) {
+                    // Игнорируем ошибки остановки
+                }
+                backgroundMusic = null;
+            }
+            isMusicPlaying = false;
+            updateMusicUI();
+        }
+        
+        // Переключение состояния музыки
+        function toggleBackgroundMusic() {
+            if (isMusicPlaying) {
+                stopBackgroundMusic();
+            } else {
+                loadAndPlayMusic(currentMusicType || 'rain');
+            }
+        }
+        
+        // Обновление UI элементов управления музыкой
+        function updateMusicUI() {
+            if (isMusicPlaying) {
+                musicToggleBtn.classList.add('hidden');
+                musicMuteBtn.classList.remove('hidden');
+            } else {
+                musicToggleBtn.classList.remove('hidden');
+                musicMuteBtn.classList.add('hidden');
+            }
+        }
+        
+        // Сохранение настроек музыки
+        function saveMusicSettings() {
+            const settings = {
+                musicType: currentMusicType,
+                musicVolume: musicVolume
+            };
+            localStorage.setItem('pomodoroMusicSettings', JSON.stringify(settings));
+        }
+        
+        // Загрузка настроек музыки
+        function loadMusicSettings() {
+            const settings = JSON.parse(localStorage.getItem('pomodoroMusicSettings'));
+            if (settings) {
+                currentMusicType = settings.musicType || 'none';
+                musicVolume = settings.musicVolume || 0.5;
+                
+                // Обновить UI выбора музыки в настройках
+                if (musicTypeSelect) musicTypeSelect.value = currentMusicType;
+                if (settingsVolumeSlider) settingsVolumeSlider.value = musicVolume;
+                
+                // Обновить ползунок громкости рядом с кнопками
+                if (volumeSlider) volumeSlider.value = musicVolume;
+            }
+        }
+        
+        // === КОНЕЦ ФУНКЦИЙ ДЛЯ ФОНОВОЙ МУЗЫКИ ===
         
         function handleModeChange(mode, fromUserAction = false) {
             if (isRunning && fromUserAction) {
@@ -1387,6 +1592,7 @@
             }, 500);
         }
         
+        // === ИЗМЕНЕНИЕ В startTimer ===
         function startTimer() {
             if (isRunning) return;
             if (Notification.permission === 'default') {
@@ -1395,16 +1601,28 @@
             isRunning = true;
             startBtn.classList.add('hidden');
             pauseBtn.classList.remove('hidden');
-            playAudio(currentMode, 'start');
+            
+            // playTTS(currentMode, 'start'); // Удалено
+            playAudio(currentMode, 'start'); // Добавлено
+            
+            // Возобновить музыку, если была включена
+            if (currentMusicType !== 'none' && !isMusicPlaying) {
+                loadAndPlayMusic(currentMode);
+            }
+            
             startTime = performance.now();
             animationFrameId = requestAnimationFrame(updateDisplay);
         }
+        // === КОНЕЦ ИЗМЕНЕНИЯ ===
         
         function pauseTimer() {
             if (!isRunning) return;
             stopTimer();
             startBtn.classList.remove('hidden');
             pauseBtn.classList.add('hidden');
+            
+            // Остановить музыку при паузе
+            // stopBackgroundMusic();
         }
         
         function stopTimer() {
@@ -1422,6 +1640,9 @@
             drawSessionItems();
             timerCanvas.style.transform = '';
             timerCanvas.style.opacity = '1';
+            
+            // Остановить музыку при сбросе
+            stopBackgroundMusic();
         }
         
         function showModal(message, onConfirm) {
@@ -1498,7 +1719,9 @@
                         'long-break': TIMER_MODES['long-break'] / 60,
                         sessionsInCycle: sessionsInCycle,
                         totalDuration: totalDurationInput.value,
-                        vibrationEnabled: vibrationEnabled
+                        vibrationEnabled: vibrationEnabled,
+                        musicType: currentMusicType,
+                        musicVolume: musicVolume
                     };
                 }
             } else {
@@ -1508,7 +1731,10 @@
                     'short-break': presetSettings['short-break'],
                     'long-break': presetSettings['long-break'],
                     sessionsInCycle: presetSettings.sessionsInCycle,
-                    totalDuration: totalDurationInput.value
+                    totalDuration: totalDurationInput.value,
+                    vibrationEnabled: vibrationEnabled,
+                    musicType: currentMusicType,
+                    musicVolume: musicVolume
                 };
             }
             focusTimeInput.value = settings.focus;
@@ -1522,13 +1748,20 @@
             totalDurationInput.value = settings.totalDuration;
             totalDurationSlider.value = settings.totalDuration;
             vibrationToggle.checked = settings.vibrationEnabled;
+            currentMusicType = settings.musicType;
+            musicVolume = settings.musicVolume;
         }
         
+        // === ИЗМЕНЕНИЯ В endFocusAnimation и endBreakAnimation ===
         function endFocusAnimation() {
             stopTimer();
             vibrateDevice();
             showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
-            playAudio(currentMode, 'end');
+            
+            // playTTS(currentMode, 'end'); // Удалено
+            playAudio(currentMode, 'end'); // Добавлено
+            
+            // Update gamification stats
             sessionsCompleted++;
             completedSessions++;
             points += POINTS_PER_SESSION;
@@ -1560,75 +1793,22 @@
                 }
             }, 500);
         }
-        
+
         function endBreakAnimation() {
             stopTimer();
             vibrateDevice();
             showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
-            playAudio(currentMode, 'end');
+            
+            // playTTS(currentMode, 'end'); // Удалено
+            playAudio(currentMode, 'end'); // Добавлено
+            
             handleModeChange('focus');
         }
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabName = tab.getAttribute('data-tab');
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === `${tabName}-tab`) {
-                        content.classList.add('active');
-                    }
-                });
-            });
-        });
+        // === КОНЕЦ ИЗМЕНЕНИЙ ===
         
         profileDisplay.addEventListener('click', () => {
             profileNameInput.value = profile.name;
-            combinedModal.classList.remove('hidden');
-            tabs.forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="profile"]').classList.add('active');
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === 'profile-tab') {
-                    content.classList.add('active');
-                }
-            });
-        });
-        
-        settingsBtn.addEventListener('click', () => {
-            focusTimeSlider.value = TIMER_MODES.focus / 60;
-            focusTimeInput.value = TIMER_MODES.focus / 60;
-            shortBreakTimeSlider.value = TIMER_MODES['short-break'] / 60;
-            shortBreakTimeInput.value = TIMER_MODES['short-break'] / 60;
-            longBreakTimeSlider.value = TIMER_MODES['long-break'] / 60;
-            longBreakTimeInput.value = TIMER_MODES['long-break'] / 60;
-            sessionsCountSlider.value = sessionsInCycle;
-            sessionsCountInput.value = sessionsInCycle;
-            totalDurationSlider.value = totalDurationInput.value;
-            vibrationToggle.checked = vibrationEnabled;
-            combinedModal.classList.remove('hidden');
-            tabs.forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="settings"]').classList.add('active');
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === 'settings-tab') {
-                    content.classList.add('active');
-                }
-            });
-        });
-        
-        achievementsBtn.addEventListener('click', () => {
-            combinedModal.classList.remove('hidden');
-            updateGamificationUI();
-            tabs.forEach(t => t.classList.remove('active'));
-            document.querySelector('.tab[data-tab="achievements"]').classList.add('active');
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === 'achievements-tab') {
-                    content.classList.add('active');
-                }
-            });
+            profileModal.classList.remove('hidden');
         });
         
         saveProfileBtn.addEventListener('click', () => {
@@ -1643,18 +1823,43 @@
                     profile.avatar = e.target.result;
                     saveProfileData();
                     updateProfileUI();
-                    combinedModal.classList.add('hidden');
+                    profileModal.classList.add('hidden');
                 };
                 reader.readAsDataURL(newFile);
             } else {
                 saveProfileData();
                 updateProfileUI();
-                combinedModal.classList.add('hidden');
+                profileModal.classList.add('hidden');
             }
         });
         
         cancelProfileBtn.addEventListener('click', () => {
-            combinedModal.classList.add('hidden');
+            profileModal.classList.add('hidden');
+        });
+        
+        settingsBtn.addEventListener('click', () => {
+            focusTimeSlider.value = TIMER_MODES.focus / 60;
+            focusTimeInput.value = TIMER_MODES.focus / 60;
+            shortBreakTimeSlider.value = TIMER_MODES['short-break'] / 60;
+            shortBreakTimeInput.value = TIMER_MODES['short-break'] / 60;
+            longBreakTimeSlider.value = TIMER_MODES['long-break'] / 60;
+            longBreakTimeInput.value = TIMER_MODES['long-break'] / 60;
+            sessionsCountSlider.value = sessionsInCycle;
+            sessionsCountInput.value = sessionsInCycle;
+            totalDurationSlider.value = totalDurationInput.value;
+            vibrationToggle.checked = vibrationEnabled;
+            musicTypeSelect.value = currentMusicType;
+            settingsVolumeSlider.value = musicVolume;
+            settingsModal.classList.remove('hidden');
+        });
+        
+        achievementsBtn.addEventListener('click', () => {
+            achievementsModal.classList.remove('hidden');
+            updateGamificationUI();
+        });
+        
+        closeAchievementsBtn.addEventListener('click', () => {
+            achievementsModal.classList.add('hidden');
         });
         
         saveSettingsBtn.addEventListener('click', () => {
@@ -1664,6 +1869,9 @@
             const newSessionsInCycle = parseInt(sessionsCountInput.value);
             const totalDurationHours = parseFloat(totalDurationInput.value);
             const newVibrationEnabled = vibrationToggle.checked;
+            const newMusicType = musicTypeSelect.value;
+            const newMusicVolume = parseFloat(settingsVolumeSlider.value);
+            
             if (!isNaN(newFocusTime) && newFocusTime > 0 &&
                 !isNaN(newShortBreakTime) && newShortBreakTime > 0 &&
                 !isNaN(newLongBreakTime) && newLongBreakTime > 0 &&
@@ -1673,6 +1881,8 @@
                 TIMER_MODES['long-break'] = newLongBreakTime;
                 sessionsInCycle = newSessionsInCycle;
                 vibrationEnabled = newVibrationEnabled;
+                currentMusicType = newMusicType;
+                musicVolume = newMusicVolume;
                 PRESETS.custom.focus = newFocusTime / 60;
                 PRESETS.custom['short-break'] = newShortBreakTime / 60;
                 PRESETS.custom['long-break'] = newLongBreakTime / 60;
@@ -1690,28 +1900,68 @@
                     drawSessionItems();
                 }
                 saveSettings();
-                combinedModal.classList.add('hidden');
+                settingsModal.classList.add('hidden');
             } else {
                 showModal("Пожалуйста, введите корректные значения (больше 0).", () => {});
             }
         });
         
         cancelSettingsBtn.addEventListener('click', () => {
-            combinedModal.classList.add('hidden');
+            settingsModal.classList.add('hidden');
         });
         
         resetDefaultBtn.addEventListener('click', () => {
             setDifficultyLevel('standard');
             difficultyLevel.value = 'standard';
             vibrationToggle.checked = DEFAULT_SETTINGS.vibrationEnabled;
+            musicTypeSelect.value = DEFAULT_SETTINGS.musicType;
+            settingsVolumeSlider.value = DEFAULT_SETTINGS.musicVolume;
+            volumeSlider.value = DEFAULT_SETTINGS.musicVolume;
         });
         
-        closeAchievementsBtn.addEventListener('click', () => {
-            combinedModal.classList.add('hidden');
+        // Обработчики для музыки
+        musicToggleBtn.addEventListener('click', toggleBackgroundMusic);
+        musicToggleBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            toggleBackgroundMusic();
         });
         
-        difficultyLevel.addEventListener('change', (e) => {
-            setDifficultyLevel(e.target.value);
+        musicMuteBtn.addEventListener('click', stopBackgroundMusic);
+        musicMuteBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            stopBackgroundMusic();
+        });
+        
+        volumeSlider.addEventListener('input', function() {
+            musicVolume = parseFloat(this.value);
+            if (backgroundMusic && backgroundMusic.gainNode) {
+                backgroundMusic.gainNode.gain.value = musicVolume;
+            }
+            // Синхронизировать с настройками
+            if (settingsVolumeSlider) {
+                settingsVolumeSlider.value = musicVolume;
+            }
+            saveSettings();
+        });
+        
+        settingsVolumeSlider.addEventListener('input', function() {
+            musicVolume = parseFloat(this.value);
+            if (backgroundMusic && backgroundMusic.gainNode) {
+                backgroundMusic.gainNode.gain.value = musicVolume;
+            }
+            // Синхронизировать с основным ползунком
+            if (volumeSlider) {
+                volumeSlider.value = musicVolume;
+            }
+            saveSettings();
+        });
+        
+        musicTypeSelect.addEventListener('change', function() {
+            currentMusicType = this.value;
+            if (isMusicPlaying) {
+                loadAndPlayMusic(currentMusicType);
+            }
+            saveSettings();
         });
         
         window.onload = function() {
@@ -1732,42 +1982,25 @@
             resizeCanvas();
             drawSessionItems();
             
-            // Предзагрузка аудио файлов
-            preloadAudio();
+            // Загрузка настроек музыки
+            loadMusicSettings();
         };
         
         window.addEventListener('resize', resizeCanvas);
         
-        // Используем обработчики для всех типов событий для лучшей совместимости с iOS
-        startBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            // Инициализируем аудио контекст при первом клике
-            initAudioContext();
-            startTimer();
-        });
-        
+        startBtn.addEventListener('click', startTimer);
         startBtn.addEventListener('touchstart', function(e) {
             e.preventDefault();
-            // Инициализируем аудио контекст при первом таче
-            initAudioContext();
             startTimer();
         });
         
-        pauseBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            pauseTimer();
-        });
-        
+        pauseBtn.addEventListener('click', pauseTimer);
         pauseBtn.addEventListener('touchstart', function(e) {
             e.preventDefault();
             pauseTimer();
         });
         
-        resetBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            resetTimer();
-        });
-        
+        resetBtn.addEventListener('click', resetTimer);
         resetBtn.addEventListener('touchstart', function(e) {
             e.preventDefault();
             resetTimer();
@@ -1790,7 +2023,19 @@
         totalDurationSlider.addEventListener('input', () => {
             totalDurationInput.value = totalDurationSlider.value;
         });
+        
+        // PWA Service Worker регистрация
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
-
