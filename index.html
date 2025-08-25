@@ -564,6 +564,21 @@
             border: 0;
         }
         
+        /* Fix for iOS Safari button issues */
+        .control-button {
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        /* Fallback avatar */
+        .fallback-avatar {
+            background-color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
         /* Music button styles */
         .music-btn {
             background: linear-gradient(145deg, #8b5cf6, #7c3aed);
@@ -621,6 +636,21 @@
             border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+        
+        /* Notification warning */
+        .notification-warning {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 0.75rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            text-align: left;
+            font-size: 0.875rem;
+            color: #92400e;
+        }
+        .notification-warning strong {
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -642,7 +672,7 @@
                 <button id="settings-btn" class="py-1.5 px-2.5 rounded-full text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                     </svg>
                 </button>
                 <button id="achievements-btn" class="py-1.5 px-2.5 rounded-full text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors">
@@ -659,11 +689,10 @@
             </div>
         </div>
         <div id="session-counter" class="session-counter">
-            <!-- Session items will be generated here -->
         </div>
         <div class="flex justify-center space-x-3">
             <div class="relative w-14 h-14">
-                <button id="start-btn" class="control-button start-btn shadow-lg absolute inset-0">
+                <button id="start-btn" class="control-button start-btn shadow-lg absolute inset-0" aria-label="Запустить таймер">
                     <div class="icon-container">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
@@ -671,7 +700,7 @@
                     </div>
                     <span class="btn-text">Запустить</span>
                 </button>
-                <button id="pause-btn" class="control-button pause-btn shadow-lg hidden absolute inset-0">
+                <button id="pause-btn" class="control-button pause-btn shadow-lg hidden absolute inset-0" aria-label="Приостановить таймер">
                     <div class="icon-container">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
@@ -680,7 +709,7 @@
                     <span class="btn-text">Пауза</span>
                 </button>
             </div>
-            <button id="reset-btn" class="control-button reset-btn shadow-lg">
+            <button id="reset-btn" class="control-button reset-btn shadow-lg" aria-label="Сбросить таймер">
                 <div class="icon-container">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -715,147 +744,151 @@
         </div>
     </div>
     
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal hidden">
+    <!-- Combined Profile/Settings/Achievements Modal -->
+    <div id="combined-modal" class="modal hidden">
         <div class="modal-content">
-            <h2 class="text-xl font-bold mb-3">Настройки</h2>
-            <div class="settings-control">
-                <label for="difficulty-level">Уровни сложности:</label>
-                <select id="difficulty-level" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
-                    <option value="standard">Стандартный (25 / 5 / 15 мин)</option>
-                    <option value="intensive">Интенсивный (45 / 15 / 60 мин)</option>
-                    <option value="study">Учеба (50 / 10 / 25 мин)</option>
-                    <option value="work">Работа (90 / 20 / 45 мин)</option>
-                    <option value="creative">Креатив (15 / 3 / 10 мин)</option>
-                    <option value="custom">Свои настройки</option>
-                </select>
+            <div class="tabs">
+                <div class="tab active" data-tab="profile">Профиль</div>
+                <div class="tab" data-tab="settings">Настройки</div>
+                <div class="tab" data-tab="achievements">Достижения</div>
             </div>
-            <div class="settings-form">
-                <div class="settings-control">
-                    <label for="focus-time">Фокус (минуты):</label>
-                    <div class="flex items-center space-x-2 mt-1">
-                        <input type="range" id="focus-time-slider" min="1" max="60" value="25">
-                        <input type="number" id="focus-time" min="1" max="60" value="25" class="text-center">
+            
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="tab-content active">
+                <h2 class="text-xl font-bold mb-3">Профиль</h2>
+                <div class="settings-form">
+                    <div class="settings-control">
+                        <label for="profile-name-input">Ваше имя:</label>
+                        <input type="text" id="profile-name-input" placeholder="Введите ваше имя" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
+                    </div>
+                    <div class="settings-control">
+                        <label for="profile-avatar-file">Загрузить аватарку:</label>
+                        <input type="file" id="profile-avatar-file" accept="image/*" class="w-full mt-1 p-1 rounded-lg border border-gray-300 text-sm">
                     </div>
                 </div>
-                <div class="settings-control">
-                    <label for="short-break-time">Короткий перерыв (минуты):</label>
-                    <div class="flex items-center space-x-2 mt-1">
-                        <input type="range" id="short-break-time-slider" min="1" max="15" value="5">
-                        <input type="number" id="short-break-time" min="1" max="15" value="5" class="text-center">
-                    </div>
+                <div class="flex justify-center space-x-2 mt-3">
+                    <button id="save-profile-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
+                    <button id="cancel-profile-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
                 </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <h2 class="text-xl font-bold mb-3">Настройки</h2>
                 <div class="settings-control">
-                    <label for="long-break-time">Длинный перерыв (минуты):</label>
-                    <div class="flex items-center space-x-2 mt-1">
-                        <input type="range" id="long-break-time-slider" min="5" max="30" value="15">
-                        <input type="number" id="long-break-time" min="5" max="30" value="15" class="text-center">
-                    </div>
+                    <label for="difficulty-level">Уровни сложности:</label>
+                    <select id="difficulty-level" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
+                        <option value="standard">Стандартный (25 / 5 / 15 мин)</option>
+                        <option value="intensive">Интенсивный (45 / 15 / 60 мин)</option>
+                        <option value="study">Учеба (50 / 10 / 25 мин)</option>
+                        <option value="work">Работа (90 / 20 / 45 мин)</option>
+                        <option value="creative">Креатив (15 / 3 / 10 мин)</option>
+                        <option value="custom">Свои настройки</option>
+                    </select>
                 </div>
-                <div class="settings-control">
-                    <label for="sessions-count-slider">Сессий до длинного перерыва:</label>
-                    <div class="flex items-center space-x-2 mt-1">
-                        <input type="range" id="sessions-count-slider" min="1" max="10" value="4">
-                        <input type="number" id="sessions-count-input" min="1" max="10" value="4" class="text-center">
-                    </div>
-                </div>
-                <div class="settings-control">
-                    <label for="total-duration">Общая длительность (часы):</label>
-                    <div class="flex items-center space-x-2 mt-1">
-                        <input type="range" id="total-duration-slider" min="0.5" max="12" step="0.5" value="8">
-                        <input type="number" id="total-duration-input" min="0.5" max="12" step="0.5" value="8" class="text-center">
-                    </div>
-                </div>
-                
-                <!-- Music settings -->
-                <div class="settings-control pt-4 border-t border-gray-200">
-                    <label class="font-bold mb-2 block">Фоновая музыка:</label>
-                    <div class="flex flex-col space-y-2">
-                        <select id="music-type-select" class="w-full p-2 rounded-lg border border-gray-300">
-                            <option value="none">Без музыки</option>
-                            <option value="rain">Дождь</option>
-                            <option value="ocean">Океан</option>
-                            <option value="forest">Лес</option>
-                            <option value="cafe">Кофе</option>
-                            <option value="pink-noise">Розовый шум</option>
-                            <option value="brown-noise">Коричневый шум</option>
-                        </select>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm">Громкость:</span>
-                            <input type="range" id="settings-volume-slider" min="0" max="1" step="0.01" value="0.5" class="flex-grow">
+                <div class="settings-form">
+                    <div class="settings-control">
+                        <label for="focus-time">Фокус (минуты):</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="focus-time-slider" min="1" max="60" value="25">
+                            <input type="number" id="focus-time" min="1" max="60" value="25" class="text-center">
                         </div>
                     </div>
-                </div>
-                
-                <div class="settings-control flex items-center justify-between">
-                    <label for="vibration-toggle" class="mb-0">Включить вибрацию:</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="vibration-toggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-            <div class="flex flex-wrap justify-center gap-2 mt-3">
-                <button id="save-settings-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
-                <button id="cancel-settings-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
-                <button id="reset-default-btn" class="bg-gray-500 text-white py-1.5 px-3 rounded-lg hover:bg-gray-600 text-sm">Сброс</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Profile Modal -->
-    <div id="profile-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2 class="text-xl font-bold mb-3">Профиль 👤</h2>
-            <div class="settings-form">
-                <div class="settings-control">
-                    <label for="profile-name-input">Ваше имя:</label>
-                    <input type="text" id="profile-name-input" placeholder="Введите ваше имя" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
-                </div>
-                <div class="settings-control">
-                    <label for="profile-avatar-file">Загрузить аватарку:</label>
-                    <input type="file" id="profile-avatar-file" accept="image/*" class="w-full mt-1 p-1 rounded-lg border border-gray-300 text-sm">
-                </div>
-            </div>
-            <div class="flex justify-center space-x-2 mt-3">
-                <button id="save-profile-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
-                <button id="cancel-profile-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Achievements Modal -->
-    <div id="achievements-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2 class="text-xl font-bold mb-3">Достижения 🏆</h2>
-            <div class="gamification-stats">
-                <h2 class="text-lg font-bold mb-3 text-gray-700">Прогресс</h2>
-                <div class="grid grid-cols-3 gap-3 mb-3">
-                    <div class="stat-item">
-                        <span id="points-display" class="stat-value">0</span>
-                        <span>Очки</span>
+                    <div class="settings-control">
+                        <label for="short-break-time">Короткий перерыв (минуты):</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="short-break-time-slider" min="1" max="15" value="5">
+                            <input type="number" id="short-break-time" min="1" max="15" value="5" class="text-center">
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <span id="level-display" class="stat-value">1</span>
-                        <span>Уровень</span>
+                    <div class="settings-control">
+                        <label for="long-break-time">Длинный перерыв (минуты):</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="long-break-time-slider" min="5" max="30" value="15">
+                            <input type="number" id="long-break-time" min="5" max="30" value="15" class="text-center">
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <span id="streak-display" class="stat-value">0</span>
-                        <span>Стрик</span>
+                    <div class="settings-control">
+                        <label for="sessions-count-slider">Сессий до длинного перерыва:</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="sessions-count-slider" min="1" max="10" value="4">
+                            <input type="number" id="sessions-count-input" min="1" max="10" value="4" class="text-center">
+                        </div>
+                    </div>
+                    <div class="settings-control">
+                        <label for="total-duration">Общая длительность (часы):</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="total-duration-slider" min="0.5" max="12" step="0.5" value="8">
+                            <input type="number" id="total-duration-input" min="0.5" max="12" step="0.5" value="8" class="text-center">
+                        </div>
+                    </div>
+                    
+                    <!-- Music settings -->
+                    <div class="settings-control pt-4 border-t border-gray-200">
+                        <label class="font-bold mb-2 block">Фоновая музыка:</label>
+                        <div class="flex flex-col space-y-2">
+                            <select id="music-type-select" class="w-full p-2 rounded-lg border border-gray-300 text-sm">
+                                <option value="none">Без музыки</option>
+                                <option value="rain">Дождь</option>
+                                <option value="ocean">Океан</option>
+                                <option value="forest">Лес</option>
+                                <option value="cafe">Кофе</option>
+                                <option value="pink-noise">Розовый шум</option>
+                                <option value="brown-noise">Коричневый шум</option>
+                            </select>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm">Громкость:</span>
+                                <input type="range" id="settings-volume-slider" min="0" max="1" step="0.01" value="0.5" class="flex-grow">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-control flex items-center justify-between">
+                        <label for="vibration-toggle" class="mb-0">Включить вибрацию:</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="vibration-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
                 </div>
-                <div class="level-bar-container">
-                    <div id="level-bar" class="level-bar" style="width: 0%;">
-                        <span id="level-progress">0/100</span>
-                    </div>
-                </div>
-                <h3 class="text-base font-bold mt-4 mb-2 text-gray-700">Достижения</h3>
-                <div id="badge-grid" class="badge-grid">
-                    <!-- Badges will be rendered here by JavaScript -->
+                <div class="flex flex-wrap justify-center gap-2 mt-3">
+                    <button id="save-settings-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
+                    <button id="cancel-settings-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
+                    <button id="reset-default-btn" class="bg-gray-500 text-white py-1.5 px-3 rounded-lg hover:bg-gray-600 text-sm">Сброс</button>
                 </div>
             </div>
-            <div class="mt-3">
-                <button id="close-achievements-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Закрыть</button>
+            
+            <!-- Achievements Tab -->
+            <div id="achievements-tab" class="tab-content">
+                <h2 class="text-xl font-bold mb-3">Достижения</h2>
+                <div class="gamification-stats">
+                    <h2 class="text-lg font-bold mb-3 text-gray-700">Прогресс</h2>
+                    <div class="grid grid-cols-3 gap-3 mb-3">
+                        <div class="stat-item">
+                            <span id="points-display" class="stat-value">0</span>
+                            <span>Очки</span>
+                        </div>
+                        <div class="stat-item">
+                            <span id="level-display" class="stat-value">1</span>
+                            <span>Уровень</span>
+                        </div>
+                        <div class="stat-item">
+                            <span id="streak-display" class="stat-value">0</span>
+                            <span>Стрик</span>
+                        </div>
+                    </div>
+                    <div class="level-bar-container">
+                        <div id="level-bar" class="level-bar" style="width: 0%;">
+                            <span id="level-progress">0/100</span>
+                        </div>
+                    </div>
+                    <h3 class="text-base font-bold mt-4 mb-2 text-gray-700">Достижения</h3>
+                    <div id="badge-grid" class="badge-grid">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button id="close-achievements-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Закрыть</button>
+                </div>
             </div>
         </div>
     </div>
@@ -963,9 +996,7 @@
         const settingsBtn = document.getElementById('settings-btn');
         const achievementsBtn = document.getElementById('achievements-btn');
         const profileDisplay = document.getElementById('profile-display');
-        const settingsModal = document.getElementById('settings-modal');
-        const profileModal = document.getElementById('profile-modal');
-        const achievementsModal = document.getElementById('achievements-modal');
+        const combinedModal = document.getElementById('combined-modal');
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
         const resetDefaultBtn = document.getElementById('reset-default-btn');
@@ -996,6 +1027,8 @@
         const profileAvatarDisplay = document.getElementById('profile-avatar');
         const profileNameInput = document.getElementById('profile-name-input');
         const profileAvatarFile = document.getElementById('profile-avatar-file');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
         
         // Music elements
         const musicToggleBtn = document.getElementById('music-toggle-btn');
@@ -1191,48 +1224,450 @@
             }
         }
         
-        function showMessageBox(message, type = 'info') {
-            const messageBox = document.createElement('div');
-            messageBox.classList.add('message-box');
-            let bgColor = '#16a34a';
-            if (type === 'error') bgColor = '#dc2626';
-            if (type === 'info') bgColor = '#3b82f6';
-            if (type === 'achievement') bgColor = '#eab308';
-            messageBox.style.backgroundColor = bgColor;
-            messageBox.textContent = message;
-            document.body.appendChild(messageBox);
-            setTimeout(() => {
-                messageBox.classList.add('show');
-            }, 10);
-            setTimeout(() => {
-                messageBox.classList.remove('show');
-                setTimeout(() => {
-                    messageBox.remove();
-                }, 500);
-            }, 3000);
-        }
-        
-        function requestNotificationPermission() {
+        // === УЛУЧШЕННАЯ ФУНКЦИЯ ПОКАЗА УВЕДОМЛЕНИЙ ===
+        /**
+         * Показывает системное уведомление или предупреждение в приложении.
+         * @param {string} title - Заголовок уведомления.
+         * @param {string} body - Тело уведомления.
+         * @param {string} type - Тип уведомления ('info', 'success', 'error', 'achievement').
+         */
+        function showNotification(title, body, type = 'info') {
+            // Проверяем поддержку уведомлений
             if (!("Notification" in window)) {
-                console.log("This browser does not support desktop notification");
-            } else if (Notification.permission === "granted") {
-                console.log("Notification permission already granted.");
-            } else if (Notification.permission !== "denied") {
+                console.log("Браузер не поддерживает уведомления");
+                // Показываем сообщение в приложении
+                showMessageBox(`${title}: ${body}`, type);
+                return;
+            }
+            
+            // Если разрешение уже дано - показываем уведомление
+            if (Notification.permission === "granted") {
+                const notificationOptions = {
+                    body: body,
+                    icon: './icons/icon-192x192.png', // Убедитесь, что путь правильный
+                    badge: './icons/icon-192x192.png', // Убедитесь, что путь правильный
+                    // requireInteraction: true // Уведомление не исчезает само
+                };
+                
+                try {
+                    new Notification(title, notificationOptions);
+                } catch (e) {
+                    console.error("Ошибка при создании уведомления:", e);
+                    // Показываем сообщение в приложении в случае ошибки
+                    showMessageBox(`${title}: ${body}`, type);
+                }
+                return;
+            }
+            
+            // Если разрешение отклонено - показываем сообщение в приложении
+            if (Notification.permission === "denied") {
+                console.log("Пользователь запретил уведомления");
+                showMessageBox(`${title}: ${body}`, type);
+                return;
+            }
+            
+            // Если разрешения нет - запрашиваем его
+            if (Notification.permission === "default") {
                 Notification.requestPermission().then(permission => {
                     if (permission === "granted") {
-                        showMessageBox("Разрешение на уведомления получено!", "success");
+                        const notificationOptions = {
+                            body: body,
+                            icon: './icons/icon-192x192.png',
+                            badge: './icons/icon-192x192.png',
+                            // requireInteraction: true
+                        };
+                        try {
+                            new Notification(title, notificationOptions);
+                        } catch (e) {
+                            console.error("Ошибка при создании уведомления после получения разрешения:", e);
+                            showMessageBox(`${title}: ${body}`, type);
+                        }
+                    } else {
+                        // Показываем сообщение в приложении, если разрешение не дано
+                        showMessageBox(`${title}: ${body}`, type);
                     }
+                }).catch(err => {
+                    console.error("Ошибка при запросе разрешения на уведомления:", err);
+                    showMessageBox(`${title}: ${body}`, type);
                 });
             }
         }
+        // === КОНЕЦ УЛУЧШЕННОЙ ФУНКЦИИ ===
         
-        function showNotification(title, body) {
-            if (Notification.permission === "granted") {
-                new Notification(title, { body: body, icon: 'https://placehold.co/150x150/e2e8f0/cbd5e1?text=🍅' });
+        // === ФУНКЦИЯ ПРЕДУПРЕЖДЕНИЯ ОБ УВЕДОМЛЕНИЯХ ===
+        /**
+         * Показывает предупреждение пользователю о необходимости разрешить уведомления.
+         */
+        function showNotificationWarning() {
+            const warningMessage = `
+                <div class="notification-warning">
+                    <strong>Важно!</strong> Для получения уведомлений о завершении таймера, пожалуйста, разрешите уведомления в браузере. 
+                    Без этого вы можете не услышать сигнал, если переключитесь на другую вкладку или свернете браузер.
+                </div>
+            `;
+            
+            // Вставляем предупреждение перед кнопками управления таймером
+            const timerControls = document.querySelector('.flex.justify-center.space-x-3');
+            if (timerControls && !document.querySelector('.notification-warning')) {
+                timerControls.insertAdjacentHTML('beforebegin', warningMessage);
+            }
+            
+            // Автоматически убираем предупреждение через 10 секунд
+            setTimeout(() => {
+                const warningElement = document.querySelector('.notification-warning');
+                if (warningElement) {
+                    warningElement.remove();
+                }
+            }, 10000);
+        }
+        // === КОНЕЦ ФУНКЦИИ ПРЕДУПРЕЖДЕНИЯ ===
+        
+        /**
+         * Воспроизводит случайный аудиофайл для заданного режима и действия.
+         * @param {string} mode - Режим ('focus', 'short-break', 'long-break').
+         * @param {string} action - Действие ('start' или 'end').
+         */
+        async function playAudio(mode, action) {
+            const files = AUDIO_FILES[mode]?.[action];
+            if (!files || files.length === 0) {
+                console.warn(`Нет аудиофайлов для ${mode} ${action}`);
+                return;
+            }
+            
+            // Показываем индикатор загрузки
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'flex';
+            }
+            
+            try {
+                // Создаем новый объект Audio
+                const randomIndex = Math.floor(Math.random() * files.length);
+                const audioPath = files[randomIndex];
+                const audio = new Audio(audioPath);
+                
+                // Воспроизводим аудио
+                await audio.play();
+                
+                // Скрываем индикатор загрузки после начала воспроизведения
+                audio.addEventListener('playing', () => {
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                }, { once: true }); // once: true чтобы обработчик удалился после срабатывания
+                
+                // Также скрываем индикатор при ошибке
+                audio.addEventListener('error', (e) => {
+                    console.error("Ошибка воспроизведения аудио:", e);
+                    if (loadingIndicator) {
+                        loadingIndicator.style.display = 'none';
+                    }
+                    // Показываем сообщение пользователю, если аудио не воспроизводится
+                    showMessageBox("Не удалось воспроизвести звуковое уведомление", "error");
+                }, { once: true });
+                
+            } catch (error) {
+                console.error("Ошибка при попытке воспроизвести аудио:", error);
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'none';
+                }
+                // Показываем сообщение пользователю
+                showMessageBox("Не удалось воспроизвести звуковое уведомление", "error");
             }
         }
         
-        // Improved session counter rendering
+        function handleModeChange(mode, fromUserAction = false) {
+            if (isRunning && fromUserAction) {
+                showModal('Таймер запущен. Вы уверены, что хотите переключить режим?', () => {
+                    performModeSwitch(mode);
+                });
+            } else {
+                performModeSwitch(mode);
+            }
+        }
+        
+        function performModeSwitch(mode) {
+            timerCanvas.style.opacity = '0';
+            timerCanvas.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                stopTimer();
+                currentMode = mode;
+                totalTime = TIMER_MODES[currentMode];
+                timeRemaining = totalTime;
+                startBtn.classList.remove('hidden');
+                pauseBtn.classList.add('hidden');
+                modeButtons.forEach(btn => {
+                    if (btn.dataset.mode === mode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                resizeCanvas();
+                drawSessionItems();
+                timerCanvas.style.opacity = '1';
+                timerCanvas.style.transform = 'scale(1)';
+            }, 500);
+        }
+        
+        // === ИЗМЕНЕНИЕ В startTimer ===
+        function startTimer() {
+            if (isRunning) return;
+            
+            // Показываем предупреждение о необходимости разрешить уведомления
+            showNotificationWarning();
+            
+            // Запрашиваем разрешение на уведомления
+            if (Notification.permission === 'default') {
+                // showNotification("Разрешение на уведомления", "Пожалуйста, разрешите уведомления для получения оповещений о завершении таймера.", "info");
+                // Вместо этого просто запрашиваем разрешение
+                if ("Notification" in window) {
+                    Notification.requestPermission();
+                }
+            }
+            
+            isRunning = true;
+            startBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            playAudio(currentMode, 'start');
+            
+            // Возобновить музыку, если была включена
+            if (currentMusicType !== 'none' && !isMusicPlaying) {
+                loadAndPlayMusic(currentMode);
+            }
+            
+            startTime = performance.now();
+            animationFrameId = requestAnimationFrame(updateDisplay);
+        }
+        // === КОНЕЦ ИЗМЕНЕНИЯ ===
+        
+        function pauseTimer() {
+            if (!isRunning) return;
+            stopTimer();
+            startBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+        }
+        
+        function stopTimer() {
+            cancelAnimationFrame(animationFrameId);
+            isRunning = false;
+        }
+        
+        function resetTimer() {
+            stopTimer();
+            timeRemaining = TIMER_MODES[currentMode];
+            resizeCanvas();
+            startBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            completedSessions = 0;
+            drawSessionItems();
+            timerCanvas.style.transform = '';
+            timerCanvas.style.opacity = '1';
+            
+            // Остановить музыку при сбросе
+            stopBackgroundMusic();
+        }
+        
+        function showModal(message, onConfirm) {
+            const existingModal = document.querySelector('.modal');
+            if (existingModal) existingModal.remove();
+            const modalHtml = `
+                <div class="modal">
+                    <div class="modal-content">
+                        <p class="mb-3">${message}</p>
+                        <div class="flex justify-center space-x-3">
+                            <button id="modal-cancel-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
+                            <button id="modal-confirm-btn" class="bg-red-500 text-white py-1.5 px-3 rounded-lg hover:bg-red-600 text-sm">Да</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+                onConfirm();
+                document.querySelector('.modal').remove();
+            });
+            document.getElementById('modal-cancel-btn').addEventListener('click', () => {
+                document.querySelector('.modal').remove();
+            });
+        }
+        
+        function calculateTotalSessions(totalHours) {
+            const totalMinutes = totalHours * 60;
+            const focusMinutes = parseFloat(focusTimeInput.value);
+            const shortBreakMinutes = parseFloat(shortBreakTimeInput.value);
+            const longBreakMinutes = parseFloat(longBreakTimeInput.value);
+            const sessionsPerCycle = parseInt(sessionsCountInput.value);
+            if (focusMinutes <= 0 || shortBreakMinutes <= 0 || longBreakMinutes <= 0 || sessionsPerCycle <= 0) {
+                return 0;
+            }
+            let sessionsCount = 0;
+            let currentMinutes = 0;
+            while (currentMinutes < totalMinutes) {
+                sessionsCount++;
+                currentMinutes += focusMinutes;
+                if (sessionsCount % sessionsPerCycle === 0) {
+                    currentMinutes += longBreakMinutes;
+                } else {
+                    currentMinutes += shortBreakMinutes;
+                }
+            }
+            return Math.max(1, sessionsCount - 1);
+        }
+        
+        function syncInputs(slider, input) {
+            slider.addEventListener('input', (e) => {
+                input.value = e.target.value;
+            });
+            input.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                const min = parseFloat(slider.min);
+                const max = parseFloat(slider.max);
+                if (!isNaN(value) && value >= min && value <= max) {
+                    slider.value = value;
+                }
+            });
+        }
+        
+        function setDifficultyLevel(level) {
+            let settings;
+            if (level === 'custom') {
+                const customSettings = JSON.parse(localStorage.getItem('pomodoroSettings'));
+                if (customSettings) {
+                    settings = customSettings;
+                } else {
+                    settings = {
+                        focus: TIMER_MODES.focus / 60,
+                        'short-break': TIMER_MODES['short-break'] / 60,
+                        'long-break': TIMER_MODES['long-break'] / 60,
+                        sessionsInCycle: sessionsInCycle,
+                        totalDuration: totalDurationInput.value,
+                        vibrationEnabled: vibrationEnabled,
+                        musicType: currentMusicType,
+                        musicVolume: musicVolume
+                    };
+                }
+            } else {
+                const presetSettings = PRESETS[level];
+                settings = {
+                    focus: presetSettings.focus,
+                    'short-break': presetSettings['short-break'],
+                    'long-break': presetSettings['long-break'],
+                    sessionsInCycle: presetSettings.sessionsInCycle,
+                    totalDuration: totalDurationInput.value,
+                    vibrationEnabled: vibrationEnabled,
+                    musicType: currentMusicType,
+                    musicVolume: musicVolume
+                };
+            }
+            focusTimeInput.value = settings.focus;
+            focusTimeSlider.value = settings.focus;
+            shortBreakTimeInput.value = settings['short-break'];
+            shortBreakTimeSlider.value = settings['short-break'];
+            longBreakTimeInput.value = settings['long-break'];
+            longBreakTimeSlider.value = settings['long-break'];
+            sessionsCountInput.value = settings.sessionsInCycle;
+            sessionsCountSlider.value = settings.sessionsInCycle;
+            totalDurationInput.value = settings.totalDuration;
+            totalDurationSlider.value = settings.totalDuration;
+            vibrationToggle.checked = settings.vibrationEnabled;
+            currentMusicType = settings.musicType;
+            musicVolume = settings.musicVolume;
+        }
+        
+        // === ИЗМЕНЕНИЯ В endFocusAnimation и endBreakAnimation ===
+        function endFocusAnimation() {
+            stopTimer();
+            vibrateDevice();
+            
+            // showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
+            // Вместо старой функции используем улучшенную
+            showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'), 'info');
+            
+            playAudio(currentMode, 'end');
+            
+            // Update gamification stats
+            sessionsCompleted++;
+            completedSessions++;
+            points += POINTS_PER_SESSION;
+            updateStreak();
+            checkAchievements();
+            saveGamificationData();
+            updateGamificationUI();
+            const targetSessionElement = document.getElementById('session-counter').children[completedSessions - 1];
+            if (!targetSessionElement) {
+                if (completedSessions % sessionsInCycle === 0) {
+                    handleModeChange('long-break');
+                } else {
+                    handleModeChange('short-break');
+                }
+                return;
+            }
+            const canvasRect = timerCanvas.getBoundingClientRect();
+            const targetRect = targetSessionElement.getBoundingClientRect();
+            const dx = (targetRect.left + targetRect.width / 2) - (canvasRect.left + canvasRect.width / 2);
+            const dy = (targetRect.top + targetRect.height / 2) - (canvasRect.top + canvasRect.height / 2);
+            timerCanvas.style.transform = `translate(${dx}px, ${dy}px) scale(0.1)`;
+            timerCanvas.style.opacity = '0';
+            setTimeout(() => {
+                drawSessionItems();
+                if (completedSessions % sessionsInCycle === 0) {
+                    handleModeChange('long-break');
+                } else {
+                    handleModeChange('short-break');
+                }
+            }, 500);
+        }
+
+        function endBreakAnimation() {
+            stopTimer();
+            vibrateDevice();
+            
+            // showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
+            // Вместо старой функции используем улучшенную
+            showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'), 'info');
+            
+            playAudio(currentMode, 'end');
+            handleModeChange('focus');
+        }
+        // === КОНЕЦ ИЗМЕНЕНИЙ ===
+        
+        function getRandomPhrase(mode, action) {
+            const phrases = PHRASES[mode][action];
+            const randomIndex = Math.floor(Math.random() * phrases.length);
+            return phrases[randomIndex];
+        }
+        
+        function resizeCanvas() {
+            const container = timerCanvas.parentElement;
+            timerCanvas.width = container.offsetWidth;
+            timerCanvas.height = container.offsetWidth;
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = Math.round(totalTime % 60);
+            const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
+            const canvasWidth = timerCanvas.width;
+            const canvasHeight = timerCanvas.height;
+            const centerX = canvasWidth / 2;
+            const centerY = canvasHeight / 2;
+            const radius = Math.max(0, Math.min(centerX, centerY) - 20);
+            if (radius <= 0) return;
+            const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.stroke();
+            
+            // Адаптивный размер шрифта
+            const fontSize = getAdaptiveFontSize(Math.min(canvasWidth, canvasHeight));
+            ctx.font = `bold ${fontSize} Inter, sans-serif`;
+            ctx.fillStyle = '#1e293b';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(timeText, centerX, centerY);
+        }
+        
         function drawSessionItems() {
             sessionCounterContainer.innerHTML = '';
             
@@ -1320,97 +1755,6 @@
             ctx.fillText(timeText, centerX, centerY);
             animationFrameId = requestAnimationFrame(updateDisplay);
         }
-        
-        function resizeCanvas() {
-            const container = timerCanvas.parentElement;
-            timerCanvas.width = container.offsetWidth;
-            timerCanvas.height = container.offsetWidth;
-            const minutes = Math.floor(totalTime / 60);
-            const seconds = Math.round(totalTime % 60);
-            const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
-            const canvasWidth = timerCanvas.width;
-            const canvasHeight = timerCanvas.height;
-            const centerX = canvasWidth / 2;
-            const centerY = canvasHeight / 2;
-            const radius = Math.max(0, Math.min(centerX, centerY) - 20);
-            if (radius <= 0) return;
-            const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
-            
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-            ctx.lineWidth = lineWidth;
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.stroke();
-            
-            // Адаптивный размер шрифта
-            const fontSize = getAdaptiveFontSize(Math.min(canvasWidth, canvasHeight));
-            ctx.font = `bold ${fontSize} Inter, sans-serif`;
-            ctx.fillStyle = '#1e293b';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(timeText, centerX, centerY);
-        }
-        
-        function getRandomPhrase(mode, action) {
-            const phrases = PHRASES[mode][action];
-            const randomIndex = Math.floor(Math.random() * phrases.length);
-            return phrases[randomIndex];
-        }
-        
-        // === НОВАЯ ФУНКЦИЯ ВОСПРОИЗВЕДЕНИЯ АУДИО ===
-        /**
-         * Воспроизводит случайный аудиофайл для заданного режима и действия.
-         * @param {string} mode - Режим ('focus', 'short-break', 'long-break').
-         * @param {string} action - Действие ('start' или 'end').
-         */
-        async function playAudio(mode, action) {
-            const files = AUDIO_FILES[mode]?.[action];
-            if (!files || files.length === 0) {
-                console.warn(`Нет аудиофайлов для ${mode} ${action}`);
-                return;
-            }
-
-            // Показываем индикатор загрузки
-            if (loadingIndicator) {
-                loadingIndicator.style.display = 'flex';
-            }
-
-            try {
-                // Создаем новый объект Audio
-                const randomIndex = Math.floor(Math.random() * files.length);
-                const audioPath = files[randomIndex];
-                const audio = new Audio(audioPath);
-
-                // Воспроизводим аудио
-                await audio.play();
-
-                // Скрываем индикатор загрузки после начала воспроизведения
-                audio.addEventListener('playing', () => {
-                    if (loadingIndicator) {
-                        loadingIndicator.style.display = 'none';
-                    }
-                }, { once: true }); // once: true чтобы обработчик удалился после срабатывания
-
-                // Также скрываем индикатор при ошибке
-                audio.addEventListener('error', (e) => {
-                    console.error("Ошибка воспроизведения аудио:", e);
-                    if (loadingIndicator) {
-                        loadingIndicator.style.display = 'none';
-                    }
-                    // Можно показать сообщение пользователю, если аудио не воспроизводится
-                }, { once: true });
-
-            } catch (error) {
-                console.error("Ошибка при попытке воспроизвести аудио:", error);
-                if (loadingIndicator) {
-                    loadingIndicator.style.display = 'none';
-                }
-                // Обработка ошибок воспроизведения (например, автозапуск запрещен браузером)
-                // Пользователю может потребоваться "разрешить" воспроизведение, кликнув куда-нибудь
-            }
-        }
-        // === КОНЕЦ НОВОЙ ФУНКЦИИ ===
         
         // === ФУНКЦИИ ДЛЯ ФОНОВОЙ МУЗЫКИ ===
         
@@ -1558,283 +1902,31 @@
         
         // === КОНЕЦ ФУНКЦИЙ ДЛЯ ФОНОВОЙ МУЗЫКИ ===
         
-        function handleModeChange(mode, fromUserAction = false) {
-            if (isRunning && fromUserAction) {
-                showModal('Таймер запущен. Вы уверены, что хотите переключить режим?', () => {
-                    performModeSwitch(mode);
-                });
-            } else {
-                performModeSwitch(mode);
-            }
-        }
-        
-        function performModeSwitch(mode) {
-            timerCanvas.style.opacity = '0';
-            timerCanvas.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                stopTimer();
-                currentMode = mode;
-                totalTime = TIMER_MODES[currentMode];
-                timeRemaining = totalTime;
-                startBtn.classList.remove('hidden');
-                pauseBtn.classList.add('hidden');
-                modeButtons.forEach(btn => {
-                    if (btn.dataset.mode === mode) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${tabName}-tab`) {
+                        content.classList.add('active');
                     }
                 });
-                resizeCanvas();
-                drawSessionItems();
-                timerCanvas.style.opacity = '1';
-                timerCanvas.style.transform = 'scale(1)';
-            }, 500);
-        }
-        
-        // === ИЗМЕНЕНИЕ В startTimer ===
-        function startTimer() {
-            if (isRunning) return;
-            if (Notification.permission === 'default') {
-                requestNotificationPermission();
-            }
-            isRunning = true;
-            startBtn.classList.add('hidden');
-            pauseBtn.classList.remove('hidden');
-            
-            // playTTS(currentMode, 'start'); // Удалено
-            playAudio(currentMode, 'start'); // Добавлено
-            
-            // Возобновить музыку, если была включена
-            if (currentMusicType !== 'none' && !isMusicPlaying) {
-                loadAndPlayMusic(currentMode);
-            }
-            
-            startTime = performance.now();
-            animationFrameId = requestAnimationFrame(updateDisplay);
-        }
-        // === КОНЕЦ ИЗМЕНЕНИЯ ===
-        
-        function pauseTimer() {
-            if (!isRunning) return;
-            stopTimer();
-            startBtn.classList.remove('hidden');
-            pauseBtn.classList.add('hidden');
-            
-            // Остановить музыку при паузе
-            // stopBackgroundMusic();
-        }
-        
-        function stopTimer() {
-            cancelAnimationFrame(animationFrameId);
-            isRunning = false;
-        }
-        
-        function resetTimer() {
-            stopTimer();
-            timeRemaining = TIMER_MODES[currentMode];
-            resizeCanvas();
-            startBtn.classList.remove('hidden');
-            pauseBtn.classList.add('hidden');
-            completedSessions = 0;
-            drawSessionItems();
-            timerCanvas.style.transform = '';
-            timerCanvas.style.opacity = '1';
-            
-            // Остановить музыку при сбросе
-            stopBackgroundMusic();
-        }
-        
-        function showModal(message, onConfirm) {
-            const existingModal = document.querySelector('.modal');
-            if (existingModal) existingModal.remove();
-            const modalHtml = `
-                <div class="modal">
-                    <div class="modal-content">
-                        <p class="mb-3">${message}</p>
-                        <div class="flex justify-center space-x-3">
-                            <button id="modal-cancel-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
-                            <button id="modal-confirm-btn" class="bg-red-500 text-white py-1.5 px-3 rounded-lg hover:bg-red-600 text-sm">Да</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-            document.getElementById('modal-confirm-btn').addEventListener('click', () => {
-                onConfirm();
-                document.querySelector('.modal').remove();
             });
-            document.getElementById('modal-cancel-btn').addEventListener('click', () => {
-                document.querySelector('.modal').remove();
-            });
-        }
-        
-        function calculateTotalSessions(totalHours) {
-            const totalMinutes = totalHours * 60;
-            const focusMinutes = parseFloat(focusTimeInput.value);
-            const shortBreakMinutes = parseFloat(shortBreakTimeInput.value);
-            const longBreakMinutes = parseFloat(longBreakTimeInput.value);
-            const sessionsPerCycle = parseInt(sessionsCountInput.value);
-            if (focusMinutes <= 0 || shortBreakMinutes <= 0 || longBreakMinutes <= 0 || sessionsPerCycle <= 0) {
-                return 0;
-            }
-            let sessionsCount = 0;
-            let currentMinutes = 0;
-            while (currentMinutes < totalMinutes) {
-                sessionsCount++;
-                currentMinutes += focusMinutes;
-                if (sessionsCount % sessionsPerCycle === 0) {
-                    currentMinutes += longBreakMinutes;
-                } else {
-                    currentMinutes += shortBreakMinutes;
-                }
-            }
-            return Math.max(1, sessionsCount - 1);
-        }
-        
-        function syncInputs(slider, input) {
-            slider.addEventListener('input', (e) => {
-                input.value = e.target.value;
-            });
-            input.addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                const min = parseFloat(slider.min);
-                const max = parseFloat(slider.max);
-                if (!isNaN(value) && value >= min && value <= max) {
-                    slider.value = value;
-                }
-            });
-        }
-        
-        function setDifficultyLevel(level) {
-            let settings;
-            if (level === 'custom') {
-                const customSettings = JSON.parse(localStorage.getItem('pomodoroSettings'));
-                if (customSettings) {
-                    settings = customSettings;
-                } else {
-                    settings = {
-                        focus: TIMER_MODES.focus / 60,
-                        'short-break': TIMER_MODES['short-break'] / 60,
-                        'long-break': TIMER_MODES['long-break'] / 60,
-                        sessionsInCycle: sessionsInCycle,
-                        totalDuration: totalDurationInput.value,
-                        vibrationEnabled: vibrationEnabled,
-                        musicType: currentMusicType,
-                        musicVolume: musicVolume
-                    };
-                }
-            } else {
-                const presetSettings = PRESETS[level];
-                settings = {
-                    focus: presetSettings.focus,
-                    'short-break': presetSettings['short-break'],
-                    'long-break': presetSettings['long-break'],
-                    sessionsInCycle: presetSettings.sessionsInCycle,
-                    totalDuration: totalDurationInput.value,
-                    vibrationEnabled: vibrationEnabled,
-                    musicType: currentMusicType,
-                    musicVolume: musicVolume
-                };
-            }
-            focusTimeInput.value = settings.focus;
-            focusTimeSlider.value = settings.focus;
-            shortBreakTimeInput.value = settings['short-break'];
-            shortBreakTimeSlider.value = settings['short-break'];
-            longBreakTimeInput.value = settings['long-break'];
-            longBreakTimeSlider.value = settings['long-break'];
-            sessionsCountInput.value = settings.sessionsInCycle;
-            sessionsCountSlider.value = settings.sessionsInCycle;
-            totalDurationInput.value = settings.totalDuration;
-            totalDurationSlider.value = settings.totalDuration;
-            vibrationToggle.checked = settings.vibrationEnabled;
-            currentMusicType = settings.musicType;
-            musicVolume = settings.musicVolume;
-        }
-        
-        // === ИЗМЕНЕНИЯ В endFocusAnimation и endBreakAnimation ===
-        function endFocusAnimation() {
-            stopTimer();
-            vibrateDevice();
-            showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
-            
-            // playTTS(currentMode, 'end'); // Удалено
-            playAudio(currentMode, 'end'); // Добавлено
-            
-            // Update gamification stats
-            sessionsCompleted++;
-            completedSessions++;
-            points += POINTS_PER_SESSION;
-            updateStreak();
-            checkAchievements();
-            saveGamificationData();
-            updateGamificationUI();
-            const targetSessionElement = document.getElementById('session-counter').children[completedSessions - 1];
-            if (!targetSessionElement) {
-                if (completedSessions % sessionsInCycle === 0) {
-                    handleModeChange('long-break');
-                } else {
-                    handleModeChange('short-break');
-                }
-                return;
-            }
-            const canvasRect = timerCanvas.getBoundingClientRect();
-            const targetRect = targetSessionElement.getBoundingClientRect();
-            const dx = (targetRect.left + targetRect.width / 2) - (canvasRect.left + canvasRect.width / 2);
-            const dy = (targetRect.top + targetRect.height / 2) - (canvasRect.top + canvasRect.height / 2);
-            timerCanvas.style.transform = `translate(${dx}px, ${dy}px) scale(0.1)`;
-            timerCanvas.style.opacity = '0';
-            setTimeout(() => {
-                drawSessionItems();
-                if (completedSessions % sessionsInCycle === 0) {
-                    handleModeChange('long-break');
-                } else {
-                    handleModeChange('short-break');
-                }
-            }, 500);
-        }
-
-        function endBreakAnimation() {
-            stopTimer();
-            vibrateDevice();
-            showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
-            
-            // playTTS(currentMode, 'end'); // Удалено
-            playAudio(currentMode, 'end'); // Добавлено
-            
-            handleModeChange('focus');
-        }
-        // === КОНЕЦ ИЗМЕНЕНИЙ ===
+        });
         
         profileDisplay.addEventListener('click', () => {
             profileNameInput.value = profile.name;
-            profileModal.classList.remove('hidden');
-        });
-        
-        saveProfileBtn.addEventListener('click', () => {
-            const newName = profileNameInput.value.trim();
-            const newFile = profileAvatarFile.files[0];
-            if (newName) {
-                profile.name = newName;
-            }
-            if (newFile) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    profile.avatar = e.target.result;
-                    saveProfileData();
-                    updateProfileUI();
-                    profileModal.classList.add('hidden');
-                };
-                reader.readAsDataURL(newFile);
-            } else {
-                saveProfileData();
-                updateProfileUI();
-                profileModal.classList.add('hidden');
-            }
-        });
-        
-        cancelProfileBtn.addEventListener('click', () => {
-            profileModal.classList.add('hidden');
+            combinedModal.classList.remove('hidden');
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="profile"]').classList.add('active');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === 'profile-tab') {
+                    content.classList.add('active');
+                }
+            });
         });
         
         settingsBtn.addEventListener('click', () => {
@@ -1850,16 +1942,54 @@
             vibrationToggle.checked = vibrationEnabled;
             musicTypeSelect.value = currentMusicType;
             settingsVolumeSlider.value = musicVolume;
-            settingsModal.classList.remove('hidden');
+            combinedModal.classList.remove('hidden');
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="settings"]').classList.add('active');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === 'settings-tab') {
+                    content.classList.add('active');
+                }
+            });
         });
         
         achievementsBtn.addEventListener('click', () => {
-            achievementsModal.classList.remove('hidden');
+            combinedModal.classList.remove('hidden');
             updateGamificationUI();
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="achievements"]').classList.add('active');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === 'achievements-tab') {
+                    content.classList.add('active');
+                }
+            });
         });
         
-        closeAchievementsBtn.addEventListener('click', () => {
-            achievementsModal.classList.add('hidden');
+        saveProfileBtn.addEventListener('click', () => {
+            const newName = profileNameInput.value.trim();
+            const newFile = profileAvatarFile.files[0];
+            if (newName) {
+                profile.name = newName;
+            }
+            if (newFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profile.avatar = e.target.result;
+                    saveProfileData();
+                    updateProfileUI();
+                    combinedModal.classList.add('hidden');
+                };
+                reader.readAsDataURL(newFile);
+            } else {
+                saveProfileData();
+                updateProfileUI();
+                combinedModal.classList.add('hidden');
+            }
+        });
+        
+        cancelProfileBtn.addEventListener('click', () => {
+            combinedModal.classList.add('hidden');
         });
         
         saveSettingsBtn.addEventListener('click', () => {
@@ -1900,14 +2030,14 @@
                     drawSessionItems();
                 }
                 saveSettings();
-                settingsModal.classList.add('hidden');
+                combinedModal.classList.add('hidden');
             } else {
                 showModal("Пожалуйста, введите корректные значения (больше 0).", () => {});
             }
         });
         
         cancelSettingsBtn.addEventListener('click', () => {
-            settingsModal.classList.add('hidden');
+            combinedModal.classList.add('hidden');
         });
         
         resetDefaultBtn.addEventListener('click', () => {
@@ -1917,6 +2047,14 @@
             musicTypeSelect.value = DEFAULT_SETTINGS.musicType;
             settingsVolumeSlider.value = DEFAULT_SETTINGS.musicVolume;
             volumeSlider.value = DEFAULT_SETTINGS.musicVolume;
+        });
+        
+        closeAchievementsBtn.addEventListener('click', () => {
+            combinedModal.classList.add('hidden');
+        });
+        
+        difficultyLevel.addEventListener('change', (e) => {
+            setDifficultyLevel(e.target.value);
         });
         
         // Обработчики для музыки
@@ -2035,6 +2173,32 @@
                         console.log('SW registration failed: ', registrationError);
                     });
             });
+        }
+        
+        /**
+         * Показывает всплывающее сообщение в приложении.
+         * @param {string} message - Текст сообщения.
+         * @param {string} type - Тип сообщения ('info', 'success', 'error', 'achievement').
+         */
+        function showMessageBox(message, type = 'info') {
+            const messageBox = document.createElement('div');
+            messageBox.classList.add('message-box');
+            let bgColor = '#16a34a';
+            if (type === 'error') bgColor = '#dc2626';
+            if (type === 'info') bgColor = '#3b82f6';
+            if (type === 'achievement') bgColor = '#eab308';
+            messageBox.style.backgroundColor = bgColor;
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
+            setTimeout(() => {
+                messageBox.classList.add('show');
+            }, 10);
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+                setTimeout(() => {
+                    messageBox.remove();
+                }, 500);
+            }, 3000);
         }
     </script>
 </body>
