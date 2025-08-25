@@ -2,7 +2,7 @@
   "name": "Pomodoro Таймер",
   "short_name": "Pomodoro",
   "description": "Продуктивный Pomodoro таймер с достижениями и настройками",
-  "start_url": "./index.html",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#f0f4f8",
   "theme_color": "#3b82f6",
@@ -16,7 +16,6 @@
       "src": "./icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
-      "purpose": "any"
     }
   ]
 }
