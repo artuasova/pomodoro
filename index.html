@@ -66,6 +66,7 @@
             outline: none;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
         }
         .control-button.start-btn {
             background: linear-gradient(145deg, #22c55e, #16a34a);
@@ -547,6 +548,11 @@
             clip: rect(0, 0, 0, 0);
             white-space: nowrap;
             border: 0;
+        }
+        /* Fix for iOS Safari button issues */
+        .control-button {
+            -webkit-appearance: none;
+            appearance: none;
         }
     </style>
 </head>
@@ -1112,7 +1118,7 @@
             const centerY = canvasHeight / 2;
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return;
-            const lineWidth = Math.max(10, Math.min(20, radius / 10));
+            const lineWidth = Math.max(8, Math.min(15, radius / 15));
             const elapsed = (currentTime - startTime) / 1000;
             timeRemaining = Math.max(0, totalTime - elapsed);
             if (timeRemaining <= 0) {
@@ -1166,7 +1172,7 @@
             const centerY = canvasHeight / 2;
             const radius = Math.max(0, Math.min(centerX, centerY) - 20);
             if (radius <= 0) return;
-            const lineWidth = Math.max(10, Math.min(20, radius / 10));
+            const lineWidth = Math.max(8, Math.min(15, radius / 15));
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
             ctx.lineWidth = lineWidth;
@@ -1607,13 +1613,24 @@
         
         window.addEventListener('resize', resizeCanvas);
         
-        // Используем touchstart и touchend для лучшей совместимости с мобильными устройствами
+        // Используем обработчики для всех типов событий для лучшей совместимости с iOS
         startBtn.addEventListener('click', startTimer);
-        startBtn.addEventListener('touchstart', startTimer);
+        startBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            startTimer();
+        });
+        
         pauseBtn.addEventListener('click', pauseTimer);
-        pauseBtn.addEventListener('touchstart', pauseTimer);
+        pauseBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            pauseTimer();
+        });
+        
         resetBtn.addEventListener('click', resetTimer);
-        resetBtn.addEventListener('touchstart', resetTimer);
+        resetBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            resetTimer();
+        });
         
         document.getElementById('focus-btn').addEventListener('click', () => handleModeChange('focus', true));
         document.getElementById('short-break-btn').addEventListener('click', () => handleModeChange('short-break', true));
