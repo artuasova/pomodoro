@@ -1,1693 +1,1330 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pomodoro Таймер</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: #f0f4f8;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        color: #334155;
-        padding: 1rem;
-        overflow: hidden;
-      }
-      .container {
-        background-color: #ffffff;
-        border-radius: 1.5rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        padding: 1.5rem;
-        width: 100%;
-        max-width: 28rem;
-        text-align: center;
-      }
-      .mode-button {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-weight: 600;
-        flex-grow: 1;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .mode-button.active {
-        background-color: #3b82f6;
-        color: #ffffff;
-        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5),
-          0 4px 6px -2px rgba(59, 130, 246, 0.5);
-        flex-grow: 1.5;
-      }
-      .control-button {
-        transition: all 0.2s ease-in-out;
-        transform: scale(1);
-        width: 3.5rem;
-        height: 3.5rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 9999px;
-        color: #ffffff;
-      }
-      .control-button.start-btn {
-        background: linear-gradient(145deg, #22c55e, #16a34a);
-        box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.5),
-          0 4px 6px -2px rgba(34, 197, 94, 0.5);
-      }
-      .control-button.pause-btn {
-        background: linear-gradient(145deg, #f59e0b, #d97706);
-        box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.5),
-          0 4px 6px -2px rgba(245, 158, 11, 0.5);
-      }
-      .control-button.reset-btn {
-        background: linear-gradient(145deg, #ef4444, #dc2626);
-        box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.5),
-          0 4px 6px -2px rgba(239, 68, 68, 0.5);
-      }
-      .control-button:active {
-        transform: scale(0.95);
-      }
-      .icon-container {
-        width: 1.25rem;
-        height: 1.25rem;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .message-box {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        background-color: #16a34a;
-        color: #fff;
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-          0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        transform: translateX(150%);
-        transition: transform 0.5s ease-in-out;
-        z-index: 1000;
-        max-width: 90vw;
-        font-size: 0.875rem;
-      }
-      .message-box.show {
-        transform: translateX(0);
-      }
-      .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2000;
-        padding: 1rem;
-      }
-      .modal-content {
-        background-color: #fff;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        text-align: center;
-        width: 100%;
-        max-width: 24rem;
-        max-height: 90vh;
-        overflow-y: auto;
-      }
-      .settings-form label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: #475569;
-        font-size: 0.875rem;
-      }
-      .settings-control {
-        margin-bottom: 1.25rem;
-      }
-      .settings-form input[type="number"] {
-        width: 3rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.5rem;
-        border: 1px solid #e2e8f0;
-        text-align: center;
-        font-size: 0.875rem;
-      }
-      .settings-form .flex {
-        justify-content: center;
-        align-items: center;
-      }
-      canvas {
-        display: block;
-        margin: 0 auto 1rem;
-        max-width: 100%;
-        height: auto;
-        position: relative;
-        transform-origin: center center;
-      }
-      .loading-indicator {
-        position: absolute;
-        bottom: 0.75rem;
-        right: 0.75rem;
-        display: none;
-      }
-      .spinner {
-        border: 3px solid rgba(0, 0, 0, 0.1);
-        border-top: 3px solid #3b82f6;
-        border-radius: 50%;
-        width: 16px;
-        height: 16px;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #334155;
+            padding: 1rem;
+            overflow: hidden;
         }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-      /* Improved session counter styles for better responsiveness */
-      .session-counter {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.5rem;
-        margin: 1.5rem 0;
-        max-width: 100%;
-      }
-      .session-group {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-      }
-      .session-item {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background-color: #cbd5e1;
-        transition: background-color 0.3s ease;
-        position: relative;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1),
-          0 2px 4px rgba(0, 0, 0, 0.1);
-        flex-shrink: 0;
-      }
-      .session-item.filled {
-        background: linear-gradient(145deg, #ef4444, #dc2626);
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2),
-          0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-      .session-item.filled::before {
-        content: "";
-        position: absolute;
-        top: 1px;
-        left: 1px;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.5);
-        filter: blur(3px);
-        z-index: 1;
-      }
-      .session-item.filled::after {
-        content: "";
-        position: absolute;
-        top: 3px;
-        right: 3px;
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.7);
-        filter: blur(1px);
-        z-index: 1;
-      }
-      .session-divider {
-        width: 1px;
-        height: 24px;
-        background-color: #94a3b8;
-        margin: 0 0.25rem;
-      }
-      input[type="range"] {
-        -webkit-appearance: none;
-        width: 70%;
-        height: 6px;
-        background: #e2e8f0;
-        border-radius: 5px;
-        outline: none;
-        opacity: 0.7;
-        transition: opacity 0.2s;
-      }
-      input[type="range"]:hover {
-        opacity: 1;
-      }
-      input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 16px;
-        height: 16px;
-        background: #3b82f6;
-        cursor: pointer;
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-      input[type="range"]::-moz-range-thumb {
-        width: 16px;
-        height: 16px;
-        background: #3b82f6;
-        cursor: pointer;
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-      #timer-canvas {
-        transition: transform 0.5s cubic-bezier(0.6, 0, 0.4, 1),
-          opacity 0.5s ease-in;
-      }
-      .gamification-stats {
-        margin-top: 1.5rem;
-        border-top: 2px solid #e2e8f0;
-        padding-top: 1rem;
-      }
-      .stat-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #475569;
-      }
-      .stat-value {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1e293b;
-      }
-      .badge-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
-        gap: 0.75rem;
-        margin-top: 1rem;
-      }
-      .badge {
-        width: 52px;
-        height: 52px;
-        border-radius: 9999px;
-        background-color: #cbd5e1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.25rem;
-        color: #94a3b8;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-      }
-      .badge.unlocked {
-        background: linear-gradient(145deg, #facc15, #eab308);
-        color: #fff;
-        box-shadow: 0 4px 6px rgba(234, 179, 8, 0.4);
-      }
-      .badge.unlocked:hover {
-        transform: scale(1.1);
-      }
-      .badge:not(.unlocked):hover {
-        transform: none;
-      }
-      .badge .tooltip {
-        visibility: hidden;
-        background-color: #334155;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 4px 8px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        left: 50%;
-        transform: translateX(-50%);
-        white-space: nowrap;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 0.75rem;
-        max-width: 120px;
-      }
-      .badge:hover .tooltip {
-        visibility: visible;
-        opacity: 1;
-      }
-      .badge .tooltip::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        border-width: 4px;
-        border-style: solid;
-        border-color: #334155 transparent transparent transparent;
-      }
-      .level-bar-container {
-        width: 100%;
-        background-color: #e2e8f0;
-        border-radius: 0.5rem;
-        height: 1.25rem;
-        margin-top: 0.5rem;
-        position: relative;
-      }
-      .level-bar {
-        height: 100%;
-        background-color: #3b82f6;
-        border-radius: 0.5rem;
-        transition: width 0.5s ease-in-out;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        padding-right: 0.5rem;
-        color: #fff;
-        font-size: 0.625rem;
-        font-weight: 700;
-      }
-      .profile-display {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        justify-content: center;
-      }
-      .profile-avatar {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 9999px;
-        border: 2px solid #3b82f6;
-        object-fit: cover;
-      }
-      .profile-name {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1e293b;
-        max-width: 120px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .toggle-switch {
-        position: relative;
-        display: inline-block;
-        width: 50px;
-        height: 26px;
-      }
-      .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-      .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: 0.4s;
-        border-radius: 34px;
-      }
-      .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 20px;
-        width: 20px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        transition: 0.4s;
-        border-radius: 50%;
-      }
-      input:checked + .toggle-slider {
-        background-color: #3b82f6;
-      }
-      input:checked + .toggle-slider:before {
-        transform: translateX(24px);
-      }
-
-      /* Mobile-specific adjustments */
-      @media (max-width: 480px) {
         .container {
-          padding: 1.25rem;
-        }
-        .session-item {
-          width: 16px;
-          height: 16px;
-        }
-        .session-group {
-          gap: 0.375rem;
-        }
-        .session-divider {
-          height: 20px;
-        }
-        h1 {
-          font-size: 1.75rem;
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 28rem;
+            text-align: center;
         }
         .mode-button {
-          padding: 0.4rem 0.5rem;
-          font-size: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            flex-grow: 1;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mode-button.active {
+            background-color: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5), 0 4px 6px -2px rgba(59, 130, 246, 0.5);
+            flex-grow: 1.5;
         }
         .control-button {
-          width: 3rem;
-          height: 3rem;
+            transition: all 0.2s ease-in-out;
+            transform: scale(1);
+            width: 3.5rem;
+            height: 3.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 9999px;
+            color: #ffffff;
+        }
+        .control-button.start-btn {
+            background: linear-gradient(145deg, #22c55e, #16a34a);
+            box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.5), 0 4px 6px -2px rgba(34, 197, 94, 0.5);
+        }
+        .control-button.pause-btn {
+            background: linear-gradient(145deg, #f59e0b, #d97706);
+            box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.5), 0 4px 6px -2px rgba(245, 158, 11, 0.5);
+        }
+        .control-button.reset-btn {
+            background: linear-gradient(145deg, #ef4444, #dc2626);
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.5), 0 4px 6px -2px rgba(239, 68, 68, 0.5);
+        }
+        .control-button:active {
+            transform: scale(0.95);
         }
         .icon-container {
-          width: 1rem;
-          height: 1rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .message-box {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background-color: #16a34a;
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateX(150%);
+            transition: transform 0.5s ease-in-out;
+            z-index: 1000;
+            max-width: 90vw;
+            font-size: 0.875rem;
+        }
+        .message-box.show {
+            transform: translateX(0);
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 1rem;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            width: 100%;
+            max-width: 24rem;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .settings-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.875rem;
+        }
+        .settings-control {
+            margin-bottom: 1.25rem;
+        }
+        .settings-form input[type="number"] {
+            width: 3rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        .settings-form .flex {
+            justify-content: center;
+            align-items: center;
         }
         canvas {
-          margin-bottom: 0.75rem;
+            display: block;
+            margin: 0 auto 1rem;
+            max-width: 100%;
+            height: auto;
+            position: relative;
+            transform-origin: center center;
         }
-      }
-
-      @media (max-width: 360px) {
-        .container {
-          padding: 1rem;
+        .loading-indicator {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            display: none;
+        }
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Improved session counter styles for better responsiveness */
+        .session-counter {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            max-width: 100%;
+        }
+        .session-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
         }
         .session-item {
-          width: 14px;
-          height: 14px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #cbd5e1;
+            transition: background-color 0.3s ease;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+        .session-item.filled {
+            background: linear-gradient(145deg, #ef4444, #dc2626);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .session-item.filled::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            filter: blur(3px);
+            z-index: 1;
+        }
+        .session-item.filled::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            filter: blur(1px);
+            z-index: 1;
         }
         .session-divider {
-          height: 18px;
+            width: 1px;
+            height: 24px;
+            background-color: #94a3b8;
+            margin: 0 0.25rem;
         }
-        .profile-name {
-          font-size: 0.875rem;
-          max-width: 100px;
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 70%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
         }
-        .mode-button {
-          padding: 0.35rem 0.45rem;
-          font-size: 0.7rem;
+        input[type="range"]:hover {
+            opacity: 1;
         }
-      }
-
-      /* Ultra-small screens */
-      @media (max-width: 320px) {
-        .container {
-          padding: 0.75rem;
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        h1 {
-          font-size: 1.5rem;
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        .session-item {
-          width: 12px;
-          height: 12px;
+        #timer-canvas {
+            transition: transform 0.5s cubic-bezier(0.6, 0.0, 0.4, 1.0), opacity 0.5s ease-in;
         }
-        .session-divider {
-          height: 16px;
+        .gamification-stats {
+            margin-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 1rem;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #475569;
+        }
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .badge {
+            width: 52px;
+            height: 52px;
+            border-radius: 9999px;
+            background-color: #cbd5e1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            color: #94a3b8;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .badge.unlocked {
+            background: linear-gradient(145deg, #facc15, #eab308);
+            color: #fff;
+            box-shadow: 0 4px 6px rgba(234, 179, 8, 0.4);
+        }
+        .badge.unlocked:hover {
+            transform: scale(1.1);
+        }
+        .badge:not(.unlocked):hover {
+            transform: none;
+        }
+        .badge .tooltip {
+            visibility: hidden;
+            background-color: #334155;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 4px 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+            max-width: 120px;
+        }
+        .badge:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .badge .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 4px;
+            border-style: solid;
+            border-color: #334155 transparent transparent transparent;
+        }
+        .level-bar-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            height: 1.25rem;
+            margin-top: 0.5rem;
+            position: relative;
+        }
+        .level-bar {
+            height: 100%;
+            background-color: #3b82f6;
+            border-radius: 0.5rem;
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-right: 0.5rem;
+            color: #fff;
+            font-size: 0.625rem;
+            font-weight: 700;
+        }
+        .profile-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            justify-content: center;
         }
         .profile-avatar {
-          width: 2rem;
-          height: 2rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            border: 2px solid #3b82f6;
+            object-fit: cover;
         }
         .profile-name {
-          font-size: 0.75rem;
-          max-width: 80px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
-      }
-
-      /* Tabs styling */
-      .tabs {
-        display: flex;
-        border-bottom: 1px solid #e2e8f0;
-        margin-bottom: 1rem;
-      }
-      .tab {
-        flex: 1;
-        padding: 0.75rem;
-        cursor: pointer;
-        font-weight: 600;
-        color: #94a3b8;
-        transition: all 0.3s;
-      }
-      .tab.active {
-        color: #3b82f6;
-        border-bottom: 2px solid #3b82f6;
-      }
-      .tab-content {
-        display: none;
-      }
-      .tab-content.active {
-        display: block;
-      }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #3b82f6;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        /* Mobile-specific adjustments */
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.25rem;
+            }
+            .session-item {
+                width: 16px;
+                height: 16px;
+            }
+            .session-group {
+                gap: 0.375rem;
+            }
+            .session-divider {
+                height: 20px;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+            .mode-button {
+                padding: 0.4rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            .control-button {
+                width: 3rem;
+                height: 3rem;
+            }
+            .icon-container {
+                width: 1rem;
+                height: 1rem;
+            }
+            canvas {
+                margin-bottom: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .container {
+                padding: 1rem;
+            }
+            .session-item {
+                width: 14px;
+                height: 14px;
+            }
+            .session-divider {
+                height: 18px;
+            }
+            .profile-name {
+                font-size: 0.875rem;
+                max-width: 100px;
+            }
+            .mode-button {
+                padding: 0.35rem 0.45rem;
+                font-size: 0.7rem;
+            }
+        }
+        
+        /* Ultra-small screens */
+        @media (max-width: 320px) {
+            .container {
+                padding: 0.75rem;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .session-item {
+                width: 12px;
+                height: 12px;
+            }
+            .session-divider {
+                height: 16px;
+            }
+            .profile-avatar {
+                width: 2rem;
+                height: 2rem;
+            }
+            .profile-name {
+                font-size: 0.75rem;
+                max-width: 80px;
+            }
+        }
+        
+        /* Tabs styling */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 1rem;
+        }
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
     </style>
-  </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="container">
-      <div class="flex items-center justify-between mb-4">
-        <h1 class="text-2xl font-bold text-gray-800">Таймер Pomodoro</h1>
-        <div id="profile-display" class="profile-display">
-          <img
-            id="profile-avatar"
-            class="profile-avatar"
-            src="https://placehold.co/150x150/e2e8f0/cbd5e1?text=👤"
-            alt="User Avatar"
-          />
-          <span id="profile-name" class="profile-name">Пользователь</span>
-        </div>
-      </div>
-      <div class="flex justify-between items-center mb-6">
-        <div class="flex space-x-1 bg-gray-200 p-1 rounded-full w-full">
-          <button
-            id="focus-btn"
-            class="mode-button py-1 px-3 rounded-full active"
-            data-mode="focus"
-          >
-            Фокус
-          </button>
-          <button
-            id="short-break-btn"
-            class="mode-button py-1 px-3 rounded-full"
-            data-mode="short-break"
-          >
-            Перерыв
-          </button>
-          <button
-            id="long-break-btn"
-            class="mode-button py-1 px-3 rounded-full"
-            data-mode="long-break"
-          >
-            Длинный
-          </button>
-        </div>
-        <div class="flex space-x-1 ml-2">
-          <button
-            id="settings-btn"
-            class="py-1.5 px-2.5 rounded-full text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="3"></circle>
-              <path
-                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
-              ></path>
-            </svg>
-          </button>
-          <button
-            id="achievements-btn"
-            class="py-1.5 px-2.5 rounded-full text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
-              ></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="relative w-full max-w-xs mx-auto mb-3">
-        <canvas
-          id="timer-canvas"
-          width="350"
-          height="350"
-          class="w-full h-full"
-        ></canvas>
-        <div id="loading-indicator" class="loading-indicator">
-          <div class="spinner"></div>
-        </div>
-      </div>
-      <div id="session-counter" class="session-counter">
-        <!-- Session items will be generated here -->
-      </div>
-      <div class="flex justify-center space-x-3">
-        <div class="relative w-14 h-14">
-          <button
-            id="start-btn"
-            class="control-button start-btn shadow-lg absolute inset-0"
-          >
-            <div class="icon-container">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="2"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"
-                />
-              </svg>
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-bold text-gray-800">Таймер Pomodoro</h1>
+            <div id="profile-display" class="profile-display">
+                <img id="profile-avatar" class="profile-avatar" src="https://placehold.co/150x150/e2e8f0/cbd5e1?text=👤" alt="User Avatar">
+                <span id="profile-name" class="profile-name">Пользователь</span>
             </div>
-          </button>
-          <button
-            id="pause-btn"
-            class="control-button pause-btn shadow-lg hidden absolute inset-0"
-          >
-            <div class="icon-container">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="2"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.75 5.25v13.5m-7.5-13.5v13.5"
-                />
-              </svg>
-            </div>
-          </button>
         </div>
-        <button id="reset-btn" class="control-button reset-btn shadow-lg">
-          <div class="icon-container">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </div>
-        </button>
-      </div>
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex space-x-1 bg-gray-200 p-1 rounded-full w-full">
+                <button id="focus-btn" class="mode-button py-1 px-3 rounded-full active" data-mode="focus">Фокус</button>
+                <button id="short-break-btn" class="mode-button py-1 px-3 rounded-full" data-mode="short-break">Перерыв</button>
+                <button id="long-break-btn" class="mode-button py-1 px-3 rounded-full" data-mode="long-break">Длинный</button>
+            </div>
+            <div class="flex space-x-1 ml-2">
+                <button id="settings-btn" class="py-1.5 px-2.5 rounded-full text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+                <button id="achievements-btn" class="py-1.5 px-2.5 rounded-full text-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="relative w-full max-w-xs mx-auto mb-3">
+            <canvas id="timer-canvas" width="350" height="350" class="w-full h-full"></canvas>
+            <div id="loading-indicator" class="loading-indicator">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        <div id="session-counter" class="session-counter">
+            <!-- Session items will be generated here -->
+        </div>
+        <div class="flex justify-center space-x-3">
+            <div class="relative w-14 h-14">
+                <button id="start-btn" class="control-button start-btn shadow-lg absolute inset-0">
+                    <div class="icon-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+                        </svg>
+                    </div>
+                </button>
+                <button id="pause-btn" class="control-button pause-btn shadow-lg hidden absolute inset-0">
+                    <div class="icon-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                        </svg>
+                    </div>
+                </button>
+            </div>
+            <button id="reset-btn" class="control-button reset-btn shadow-lg">
+                <div class="icon-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+            </button>
+        </div>
     </div>
-
+    
     <!-- Combined Profile/Settings/Achievements Modal -->
     <div id="combined-modal" class="modal hidden">
-      <div class="modal-content">
-        <div class="tabs">
-          <div class="tab active" data-tab="profile">Профиль</div>
-          <div class="tab" data-tab="settings">Настройки</div>
-          <div class="tab" data-tab="achievements">Достижения</div>
+        <div class="modal-content">
+            <div class="tabs">
+                <div class="tab active" data-tab="profile">Профиль</div>
+                <div class="tab" data-tab="settings">Настройки</div>
+                <div class="tab" data-tab="achievements">Достижения</div>
+            </div>
+            
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="tab-content active">
+                <h2 class="text-xl font-bold mb-3">Профиль</h2>
+                <div class="settings-form">
+                    <div class="settings-control">
+                        <label for="profile-name-input">Ваше имя:</label>
+                        <input type="text" id="profile-name-input" placeholder="Введите ваше имя" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
+                    </div>
+                    <div class="settings-control">
+                        <label for="profile-avatar-file">Загрузить аватарку:</label>
+                        <input type="file" id="profile-avatar-file" accept="image/*" class="w-full mt-1 p-1 rounded-lg border border-gray-300 text-sm">
+                    </div>
+                </div>
+                <div class="flex justify-center space-x-2 mt-3">
+                    <button id="save-profile-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
+                    <button id="cancel-profile-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <h2 class="text-xl font-bold mb-3">Настройки</h2>
+                <div class="settings-control">
+                    <label for="difficulty-level">Уровни сложности:</label>
+                    <select id="difficulty-level" class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm">
+                        <option value="standard">Стандартный (25 / 5 / 15 мин)</option>
+                        <option value="intensive">Интенсивный (45 / 15 / 60 мин)</option>
+                        <option value="study">Учеба (50 / 10 / 25 мин)</option>
+                        <option value="work">Работа (90 / 20 / 45 мин)</option>
+                        <option value="creative">Креатив (15 / 3 / 10 мин)</option>
+                        <option value="custom">Свои настройки</option>
+                    </select>
+                </div>
+                <div class="settings-form">
+                    <div class="settings-control">
+                        <label for="focus-time">Фокус (минуты):</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="focus-time-slider" min="1" max="60" value="25">
+                            <input type="number" id="focus-time" min="1" max="60" value="25" class="text-center">
+                        </div>
+                    </div>
+                    <div class="settings-control">
+                        <label for="short-break-time">Короткий перерыв (минуты):</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="short-break-time-slider" min="1" max="15" value="5">
+                            <input type="number" id="short-break-time" min="1" max="15" value="5" class="text-center">
+                        </div>
+                    </div>
+                    <div class="settings-control">
+                        <label for="long-break-time">Длинный перерыв (минуты):</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="long-break-time-slider" min="5" max="30" value="15">
+                            <input type="number" id="long-break-time" min="5" max="30" value="15" class="text-center">
+                        </div>
+                    </div>
+                    <div class="settings-control">
+                        <label for="sessions-count-slider">Сессий до длинного перерыва:</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="sessions-count-slider" min="1" max="10" value="4">
+                            <input type="number" id="sessions-count-input" min="1" max="10" value="4" class="text-center">
+                        </div>
+                    </div>
+                    <div class="settings-control">
+                        <label for="total-duration">Общая длительность (часы):</label>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <input type="range" id="total-duration-slider" min="0.5" max="12" step="0.5" value="8">
+                            <input type="number" id="total-duration-input" min="0.5" max="12" step="0.5" value="8" class="text-center">
+                        </div>
+                    </div>
+                    <div class="settings-control flex items-center justify-between">
+                        <label for="vibration-toggle" class="mb-0">Включить вибрацию:</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="vibration-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-2 mt-3">
+                    <button id="save-settings-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Сохранить</button>
+                    <button id="cancel-settings-btn" class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm">Отмена</button>
+                    <button id="reset-default-btn" class="bg-gray-500 text-white py-1.5 px-3 rounded-lg hover:bg-gray-600 text-sm">Сброс</button>
+                </div>
+            </div>
+            
+            <!-- Achievements Tab -->
+            <div id="achievements-tab" class="tab-content">
+                <h2 class="text-xl font-bold mb-3">Достижения</h2>
+                <div class="gamification-stats">
+                    <h2 class="text-lg font-bold mb-3 text-gray-700">Прогресс</h2>
+                    <div class="grid grid-cols-3 gap-3 mb-3">
+                        <div class="stat-item">
+                            <span id="points-display" class="stat-value">0</span>
+                            <span>Очки</span>
+                        </div>
+                        <div class="stat-item">
+                            <span id="level-display" class="stat-value">1</span>
+                            <span>Уровень</span>
+                        </div>
+                        <div class="stat-item">
+                            <span id="streak-display" class="stat-value">0</span>
+                            <span>Стрик</span>
+                        </div>
+                    </div>
+                    <div class="level-bar-container">
+                        <div id="level-bar" class="level-bar" style="width: 0%;">
+                            <span id="level-progress">0/100</span>
+                        </div>
+                    </div>
+                    <h3 class="text-base font-bold mt-4 mb-2 text-gray-700">Достижения</h3>
+                    <div id="badge-grid" class="badge-grid">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button id="close-achievements-btn" class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm">Закрыть</button>
+                </div>
+            </div>
         </div>
-
-        <!-- Profile Tab -->
-        <div id="profile-tab" class="tab-content active">
-          <h2 class="text-xl font-bold mb-3">Профиль</h2>
-          <div class="settings-form">
-            <div class="settings-control">
-              <label for="profile-name-input">Ваше имя:</label>
-              <input
-                type="text"
-                id="profile-name-input"
-                placeholder="Введите ваше имя"
-                class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm"
-              />
-            </div>
-            <div class="settings-control">
-              <label for="profile-avatar-file">Загрузить аватарку:</label>
-              <input
-                type="file"
-                id="profile-avatar-file"
-                accept="image/*"
-                class="w-full mt-1 p-1 rounded-lg border border-gray-300 text-sm"
-              />
-            </div>
-          </div>
-          <div class="flex justify-center space-x-2 mt-3">
-            <button
-              id="save-profile-btn"
-              class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm"
-            >
-              Сохранить
-            </button>
-            <button
-              id="cancel-profile-btn"
-              class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm"
-            >
-              Отмена
-            </button>
-          </div>
-        </div>
-
-        <!-- Settings Tab -->
-        <div id="settings-tab" class="tab-content">
-          <h2 class="text-xl font-bold mb-3">Настройки</h2>
-          <div class="settings-control">
-            <label for="difficulty-level">Уровни сложности:</label>
-            <select
-              id="difficulty-level"
-              class="w-full mt-1 p-2 rounded-lg border border-gray-300 text-sm"
-            >
-              <option value="standard">Стандартный (25 / 5 / 15 мин)</option>
-              <option value="intensive">Интенсивный (45 / 15 / 60 мин)</option>
-              <option value="study">Учеба (50 / 10 / 25 мин)</option>
-              <option value="work">Работа (90 / 20 / 45 мин)</option>
-              <option value="creative">Креатив (15 / 3 / 10 мин)</option>
-              <option value="custom">Свои настройки</option>
-            </select>
-          </div>
-          <div class="settings-form">
-            <div class="settings-control">
-              <label for="focus-time">Фокус (минуты):</label>
-              <div class="flex items-center space-x-2 mt-1">
-                <input
-                  type="range"
-                  id="focus-time-slider"
-                  min="1"
-                  max="60"
-                  value="25"
-                />
-                <input
-                  type="number"
-                  id="focus-time"
-                  min="1"
-                  max="60"
-                  value="25"
-                  class="text-center"
-                />
-              </div>
-            </div>
-            <div class="settings-control">
-              <label for="short-break-time">Короткий перерыв (минуты):</label>
-              <div class="flex items-center space-x-2 mt-1">
-                <input
-                  type="range"
-                  id="short-break-time-slider"
-                  min="1"
-                  max="15"
-                  value="5"
-                />
-                <input
-                  type="number"
-                  id="short-break-time"
-                  min="1"
-                  max="15"
-                  value="5"
-                  class="text-center"
-                />
-              </div>
-            </div>
-            <div class="settings-control">
-              <label for="long-break-time">Длинный перерыв (минуты):</label>
-              <div class="flex items-center space-x-2 mt-1">
-                <input
-                  type="range"
-                  id="long-break-time-slider"
-                  min="5"
-                  max="30"
-                  value="15"
-                />
-                <input
-                  type="number"
-                  id="long-break-time"
-                  min="5"
-                  max="30"
-                  value="15"
-                  class="text-center"
-                />
-              </div>
-            </div>
-            <div class="settings-control">
-              <label for="sessions-count-slider"
-                >Сессий до длинного перерыва:</label
-              >
-              <div class="flex items-center space-x-2 mt-1">
-                <input
-                  type="range"
-                  id="sessions-count-slider"
-                  min="1"
-                  max="10"
-                  value="4"
-                />
-                <input
-                  type="number"
-                  id="sessions-count-input"
-                  min="1"
-                  max="10"
-                  value="4"
-                  class="text-center"
-                />
-              </div>
-            </div>
-            <div class="settings-control">
-              <label for="total-duration">Общая длительность (часы):</label>
-              <div class="flex items-center space-x-2 mt-1">
-                <input
-                  type="range"
-                  id="total-duration-slider"
-                  min="0.5"
-                  max="12"
-                  step="0.5"
-                  value="8"
-                />
-                <input
-                  type="number"
-                  id="total-duration-input"
-                  min="0.5"
-                  max="12"
-                  step="0.5"
-                  value="8"
-                  class="text-center"
-                />
-              </div>
-            </div>
-            <div class="settings-control flex items-center justify-between">
-              <label for="vibration-toggle" class="mb-0"
-                >Включить вибрацию:</label
-              >
-              <label class="toggle-switch">
-                <input type="checkbox" id="vibration-toggle" />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-          <div class="flex flex-wrap justify-center gap-2 mt-3">
-            <button
-              id="save-settings-btn"
-              class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm"
-            >
-              Сохранить
-            </button>
-            <button
-              id="cancel-settings-btn"
-              class="bg-gray-300 text-gray-800 py-1.5 px-3 rounded-lg hover:bg-gray-400 text-sm"
-            >
-              Отмена
-            </button>
-            <button
-              id="reset-default-btn"
-              class="bg-gray-500 text-white py-1.5 px-3 rounded-lg hover:bg-gray-600 text-sm"
-            >
-              Сброс
-            </button>
-          </div>
-        </div>
-
-        <!-- Achievements Tab -->
-        <div id="achievements-tab" class="tab-content">
-          <h2 class="text-xl font-bold mb-3">Достижения</h2>
-          <div class="gamification-stats">
-            <h2 class="text-lg font-bold mb-3 text-gray-700">Прогресс</h2>
-            <div class="grid grid-cols-3 gap-3 mb-3">
-              <div class="stat-item">
-                <span id="points-display" class="stat-value">0</span>
-                <span>Очки</span>
-              </div>
-              <div class="stat-item">
-                <span id="level-display" class="stat-value">1</span>
-                <span>Уровень</span>
-              </div>
-              <div class="stat-item">
-                <span id="streak-display" class="stat-value">0</span>
-                <span>Стрик</span>
-              </div>
-            </div>
-            <div class="level-bar-container">
-              <div id="level-bar" class="level-bar" style="width: 0%">
-                <span id="level-progress">0/100</span>
-              </div>
-            </div>
-            <h3 class="text-base font-bold mt-4 mb-2 text-gray-700">
-              Достижения
-            </h3>
-            <div id="badge-grid" class="badge-grid"></div>
-          </div>
-          <div class="mt-3">
-            <button
-              id="close-achievements-btn"
-              class="bg-blue-500 text-white py-1.5 px-3 rounded-lg hover:bg-blue-600 text-sm"
-            >
-              Закрыть
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
-
+    
     <script>
-      let TIMER_MODES = {
-        focus: 25 * 60,
-        "short-break": 5 * 60,
-        "long-break": 15 * 60,
-      };
-      const PHRASES = {
-        focus: {
-          start: [
-            "Приступаем к работе! Время сосредоточиться.",
-            "Начинаем сессию фокусировки. Вперёд!",
-            "Поехали! Время сосредоточиться.",
-          ],
-          end: [
-            "Отличная работа! Время для перерыва.",
-            "Сессия фокусировки окончена. Можно расслабиться.",
-            "Готово! Сделайте небольшой перерыв.",
-          ],
-          notificationTitle: "Время для перерыва!",
-        },
-        "short-break": {
-          start: [
-            "Короткий перерыв. Время для отдыха.",
-            "Начинаем короткий перерыв. Расслабьтесь.",
-            "Перерыв. Немного отдохните.",
-          ],
-          end: [
-            "Перерыв окончен. Возвращаемся к работе!",
-            "Время возвращаться к делу. Сессия закончилась.",
-            "Короткий перерыв окончен. Вперёд!",
-          ],
-          notificationTitle: "Перерыв окончен!",
-        },
-        "long-break": {
-          start: [
-            "Начинаем длинный перерыв. Отдохните подольше.",
-            "Время для большого перерыва. Отличная работа!",
-            "Заслуженный отдых. Начинаем длинный перерыв.",
-          ],
-          end: [
-            "Длинный перерыв окончен. Пора вернуться к работе.",
-            "Возвращаемся к делам. Перерыв окончен.",
-            "Закончили отдых. Снова за работу!",
-          ],
-          notificationTitle: "Длинный перерыв окончен!",
-        },
-      };
-      const DEFAULT_SETTINGS = {
-        focus: 25,
-        "short-break": 5,
-        "long-break": 15,
-        sessionsInCycle: 4,
-        totalDuration: 8,
-        vibrationEnabled: true,
-      };
-      const POINTS_PER_SESSION = 10;
-      const LEVEL_UP_POINTS = 100;
-      const BADGES = [
-        {
-          id: "first_session",
-          name: "Первый шаг",
-          description: "Завершите одну сессию Фокуса.",
-          unlocked: false,
-          requirement: { type: "sessions", value: 1 },
-          icon: "🥇",
-        },
-        {
-          id: "session_5",
-          name: "5 сессий",
-          description: "Завершите 5 сессий Фокуса.",
-          unlocked: false,
-          requirement: { type: "sessions", value: 5 },
-          icon: "🏅",
-        },
-        {
-          id: "session_25",
-          name: "25 сессий",
-          description: "Завершите 25 сессий Фокуса.",
-          unlocked: false,
-          requirement: { type: "sessions", value: 25 },
-          icon: "🏆",
-        },
-        {
-          id: "first_day",
-          name: "Первый день",
-          description: "Завершите хотя бы одну сессию за один день.",
-          unlocked: false,
-          requirement: { type: "streak", value: 1 },
-          icon: "☀️",
-        },
-        {
-          id: "streak_3_days",
-          name: "3 дня подряд",
-          description: "Завершите сессию Фокуса 3 дня подряд.",
-          unlocked: false,
-          requirement: { type: "streak", value: 3 },
-          icon: "🔥",
-        },
-        {
-          id: "streak_7_days",
-          name: "7 дней подряд",
-          description: "Завершите сессию Фокуса 7 дней подряд.",
-          unlocked: false,
-          requirement: { type: "streak", value: 7 },
-          icon: "🗓️",
-        },
-      ];
-      const PRESETS = {
-        standard: {
-          focus: 25,
-          "short-break": 5,
-          "long-break": 15,
-          sessionsInCycle: 4,
-        },
-        intensive: {
-          focus: 45,
-          "short-break": 15,
-          "long-break": 60,
-          sessionsInCycle: 2,
-        },
-        study: {
-          focus: 50,
-          "short-break": 10,
-          "long-break": 25,
-          sessionsInCycle: 3,
-        },
-        work: {
-          focus: 90,
-          "short-break": 20,
-          "long-break": 45,
-          sessionsInCycle: 2,
-        },
-        creative: {
-          focus: 15,
-          "short-break": 3,
-          "long-break": 10,
-          sessionsInCycle: 5,
-        },
-        custom: {},
-      };
-      const timerCanvas = document.getElementById("timer-canvas");
-      const ctx = timerCanvas.getContext("2d");
-      const startBtn = document.getElementById("start-btn");
-      const pauseBtn = document.getElementById("pause-btn");
-      const resetBtn = document.getElementById("reset-btn");
-      const modeButtons = document.querySelectorAll(".mode-button");
-      const settingsBtn = document.getElementById("settings-btn");
-      const achievementsBtn = document.getElementById("achievements-btn");
-      const profileDisplay = document.getElementById("profile-display");
-      const combinedModal = document.getElementById("combined-modal");
-      const saveSettingsBtn = document.getElementById("save-settings-btn");
-      const cancelSettingsBtn = document.getElementById("cancel-settings-btn");
-      const resetDefaultBtn = document.getElementById("reset-default-btn");
-      const closeAchievementsBtn = document.getElementById(
-        "close-achievements-btn"
-      );
-      const saveProfileBtn = document.getElementById("save-profile-btn");
-      const cancelProfileBtn = document.getElementById("cancel-profile-btn");
-      const difficultyLevel = document.getElementById("difficulty-level");
-      const focusTimeSlider = document.getElementById("focus-time-slider");
-      const focusTimeInput = document.getElementById("focus-time");
-      const shortBreakTimeSlider = document.getElementById(
-        "short-break-time-slider"
-      );
-      const shortBreakTimeInput = document.getElementById("short-break-time");
-      const longBreakTimeSlider = document.getElementById(
-        "long-break-time-slider"
-      );
-      const longBreakTimeInput = document.getElementById("long-break-time");
-      const sessionsCountSlider = document.getElementById(
-        "sessions-count-slider"
-      );
-      const sessionsCountInput = document.getElementById(
-        "sessions-count-input"
-      );
-      const totalDurationSlider = document.getElementById(
-        "total-duration-slider"
-      );
-      const totalDurationInput = document.getElementById(
-        "total-duration-input"
-      );
-      const loadingIndicator = document.getElementById("loading-indicator");
-      const sessionCounterContainer =
-        document.getElementById("session-counter");
-      const vibrationToggle = document.getElementById("vibration-toggle");
-      const pointsDisplay = document.getElementById("points-display");
-      const levelDisplay = document.getElementById("level-display");
-      const streakDisplay = document.getElementById("streak-display");
-      const levelBar = document.getElementById("level-bar");
-      const levelProgress = document.getElementById("level-progress");
-      const badgeGrid = document.getElementById("badge-grid");
-      const profileNameDisplay = document.getElementById("profile-name");
-      const profileAvatarDisplay = document.getElementById("profile-avatar");
-      const profileNameInput = document.getElementById("profile-name-input");
-      const profileAvatarFile = document.getElementById("profile-avatar-file");
-      const tabs = document.querySelectorAll(".tab");
-      const tabContents = document.querySelectorAll(".tab-content");
-      let animationFrameId;
-      let isRunning = false;
-      let currentMode = "focus";
-      let totalTime = TIMER_MODES[currentMode];
-      let startTime = 0;
-      let timeRemaining = totalTime;
-      let completedSessions = 0;
-      let totalSessions = 12;
-      let sessionsInCycle = 4;
-      let points = 0;
-      let level = 1;
-      let sessionsCompleted = 0;
-      let lastSessionDate = null;
-      let streak = 0;
-      let achievements = BADGES.map((b) => ({ ...b }));
-      let profile = {
-        name: "Пользователь",
-        avatar: "https://placehold.co/150x150/e2e8f0/cbd5e1?text=👤",
-      };
-      let vibrationEnabled = true;
-
-      // Адаптивный размер шрифта для таймера
-      function getAdaptiveFontSize(canvasSize) {
-        if (canvasSize <= 300) return "3rem";
-        if (canvasSize <= 350) return "4rem";
-        return "5rem";
-      }
-
-      function saveSettings() {
-        const settings = {
-          focus: parseFloat(focusTimeInput.value),
-          "short-break": parseFloat(shortBreakTimeInput.value),
-          "long-break": parseFloat(longBreakTimeInput.value),
-          sessionsInCycle: parseInt(sessionsCountInput.value),
-          totalDuration: parseFloat(totalDurationInput.value),
-          vibrationEnabled: vibrationToggle.checked,
+        let TIMER_MODES = {
+            focus: 25 * 60,
+            'short-break': 5 * 60,
+            'long-break': 15 * 60
         };
-        localStorage.setItem("pomodoroSettings", JSON.stringify(settings));
-      }
-
-      function loadSettings() {
-        const settings = JSON.parse(localStorage.getItem("pomodoroSettings"));
-        if (settings) {
-          TIMER_MODES.focus = settings.focus * 60;
-          TIMER_MODES["short-break"] = settings["short-break"] * 60;
-          TIMER_MODES["long-break"] = settings["long-break"] * 60;
-          sessionsInCycle = settings.sessionsInCycle;
-          totalSessions = calculateTotalSessions(settings.totalDuration);
-          vibrationEnabled = settings.vibrationEnabled;
-        } else {
-          saveSettings();
-        }
-      }
-
-      function saveGamificationData() {
-        const data = {
-          points,
-          level,
-          sessionsCompleted,
-          lastSessionDate,
-          streak,
-          achievements,
+        const PHRASES = {
+            focus: {
+                start: ["Приступаем к работе! Время сосредоточиться.", "Начинаем сессию фокусировки. Вперёд!", "Поехали! Время сосредоточиться."],
+                end: ["Отличная работа! Время для перерыва.", "Сессия фокусировки окончена. Можно расслабиться.", "Готово! Сделайте небольшой перерыв."],
+                notificationTitle: "Время для перерыва!"
+            },
+            'short-break': {
+                start: ["Короткий перерыв. Время для отдыха.", "Начинаем короткий перерыв. Расслабьтесь.", "Перерыв. Немного отдохните."],
+                end: ["Перерыв окончен. Возвращаемся к работе!", "Время возвращаться к делу. Сессия закончилась.", "Короткий перерыв окончен. Вперёд!"],
+                notificationTitle: "Перерыв окончен!"
+            },
+            'long-break': {
+                start: ["Начинаем длинный перерыв. Отдохните подольше.", "Время для большого перерыва. Отличная работа!", "Заслуженный отдых. Начинаем длинный перерыв."],
+                end: ["Длинный перерыв окончен. Пора вернуться к работе.", "Возвращаемся к делам. Перерыв окончен.", "Закончили отдых. Снова за работу!"],
+                notificationTitle: "Длинный перерыв окончен!"
+            }
         };
-        localStorage.setItem("pomodoroGamificationData", JSON.stringify(data));
-      }
-
-      function loadGamificationData() {
-        const data = JSON.parse(
-          localStorage.getItem("pomodoroGamificationData")
-        );
-        if (data) {
-          points = data.points;
-          level = data.level;
-          sessionsCompleted = data.sessionsCompleted;
-          lastSessionDate = data.lastSessionDate
-            ? new Date(data.lastSessionDate)
-            : null;
-          streak = data.streak;
-          achievements = data.achievements;
+        const DEFAULT_SETTINGS = {
+            focus: 25,
+            'short-break': 5,
+            'long-break': 15,
+            sessionsInCycle: 4,
+            totalDuration: 8,
+            vibrationEnabled: true
+        };
+        const POINTS_PER_SESSION = 10;
+        const LEVEL_UP_POINTS = 100;
+        const BADGES = [
+            { id: 'first_session', name: 'Первый шаг', description: 'Завершите одну сессию Фокуса.', unlocked: false, requirement: { type: 'sessions', value: 1 }, icon: '🥇' },
+            { id: 'session_5', name: '5 сессий', description: 'Завершите 5 сессий Фокуса.', unlocked: false, requirement: { type: 'sessions', value: 5 }, icon: '🏅' },
+            { id: 'session_25', name: '25 сессий', description: 'Завершите 25 сессий Фокуса.', unlocked: false, requirement: { type: 'sessions', value: 25 }, icon: '🏆' },
+            { id: 'first_day', name: 'Первый день', description: 'Завершите хотя бы одну сессию за один день.', unlocked: false, requirement: { type: 'streak', value: 1 }, icon: '☀️' },
+            { id: 'streak_3_days', name: '3 дня подряд', description: 'Завершите сессию Фокуса 3 дня подряд.', unlocked: false, requirement: { type: 'streak', value: 3 }, icon: '🔥' },
+            { id: 'streak_7_days', name: '7 дней подряд', description: 'Завершите сессию Фокуса 7 дней подряд.', unlocked: false, requirement: { type: 'streak', value: 7 }, icon: '🗓️' },
+        ];
+        const PRESETS = {
+            standard: { focus: 25, 'short-break': 5, 'long-break': 15, sessionsInCycle: 4 },
+            intensive: { focus: 45, 'short-break': 15, 'long-break': 60, sessionsInCycle: 2 },
+            study: { focus: 50, 'short-break': 10, 'long-break': 25, sessionsInCycle: 3 },
+            work: { focus: 90, 'short-break': 20, 'long-break': 45, sessionsInCycle: 2 },
+            creative: { focus: 15, 'short-break': 3, 'long-break': 10, sessionsInCycle: 5 },
+            custom: {}
+        };
+        const timerCanvas = document.getElementById('timer-canvas');
+        const ctx = timerCanvas.getContext('2d');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const modeButtons = document.querySelectorAll('.mode-button');
+        const settingsBtn = document.getElementById('settings-btn');
+        const achievementsBtn = document.getElementById('achievements-btn');
+        const profileDisplay = document.getElementById('profile-display');
+        const combinedModal = document.getElementById('combined-modal');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
+        const resetDefaultBtn = document.getElementById('reset-default-btn');
+        const closeAchievementsBtn = document.getElementById('close-achievements-btn');
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+        const cancelProfileBtn = document.getElementById('cancel-profile-btn');
+        const difficultyLevel = document.getElementById('difficulty-level');
+        const focusTimeSlider = document.getElementById('focus-time-slider');
+        const focusTimeInput = document.getElementById('focus-time');
+        const shortBreakTimeSlider = document.getElementById('short-break-time-slider');
+        const shortBreakTimeInput = document.getElementById('short-break-time');
+        const longBreakTimeSlider = document.getElementById('long-break-time-slider');
+        const longBreakTimeInput = document.getElementById('long-break-time');
+        const sessionsCountSlider = document.getElementById('sessions-count-slider');
+        const sessionsCountInput = document.getElementById('sessions-count-input');
+        const totalDurationSlider = document.getElementById('total-duration-slider');
+        const totalDurationInput = document.getElementById('total-duration-input');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const sessionCounterContainer = document.getElementById('session-counter');
+        const vibrationToggle = document.getElementById('vibration-toggle');
+        const pointsDisplay = document.getElementById('points-display');
+        const levelDisplay = document.getElementById('level-display');
+        const streakDisplay = document.getElementById('streak-display');
+        const levelBar = document.getElementById('level-bar');
+        const levelProgress = document.getElementById('level-progress');
+        const badgeGrid = document.getElementById('badge-grid');
+        const profileNameDisplay = document.getElementById('profile-name');
+        const profileAvatarDisplay = document.getElementById('profile-avatar');
+        const profileNameInput = document.getElementById('profile-name-input');
+        const profileAvatarFile = document.getElementById('profile-avatar-file');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        let animationFrameId;
+        let isRunning = false;
+        let currentMode = 'focus';
+        let totalTime = TIMER_MODES[currentMode];
+        let startTime = 0;
+        let timeRemaining = totalTime;
+        let completedSessions = 0;
+        let totalSessions = 12;
+        let sessionsInCycle = 4;
+        let points = 0;
+        let level = 1;
+        let sessionsCompleted = 0;
+        let lastSessionDate = null;
+        let streak = 0;
+        let achievements = BADGES.map(b => ({ ...b }));
+        let profile = {
+            name: 'Пользователь',
+            avatar: 'https://placehold.co/150x150/e2e8f0/cbd5e1?text=👤'
+        };
+        let vibrationEnabled = true;
+        
+        // Адаптивный размер шрифта для таймера
+        function getAdaptiveFontSize(canvasSize) {
+            if (canvasSize <= 300) return '3rem';
+            if (canvasSize <= 350) return '4rem';
+            return '5rem';
         }
-      }
-
-      function saveProfileData() {
-        localStorage.setItem("pomodoroProfile", JSON.stringify(profile));
-      }
-
-      function loadProfileData() {
-        const data = JSON.parse(localStorage.getItem("pomodoroProfile"));
-        if (data) {
-          profile = data;
+        
+        function saveSettings() {
+            const settings = {
+                focus: parseFloat(focusTimeInput.value),
+                'short-break': parseFloat(shortBreakTimeInput.value),
+                'long-break': parseFloat(longBreakTimeInput.value),
+                sessionsInCycle: parseInt(sessionsCountInput.value),
+                totalDuration: parseFloat(totalDurationInput.value),
+                vibrationEnabled: vibrationToggle.checked
+            };
+            localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
         }
-      }
-
-      function updateGamificationUI() {
-        pointsDisplay.textContent = points;
-        levelDisplay.textContent = level;
-        streakDisplay.textContent = streak;
-        const pointsToNextLevel = LEVEL_UP_POINTS;
-        const progress = points % pointsToNextLevel;
-        const progressPercentage = (progress / pointsToNextLevel) * 100;
-        levelBar.style.width = `${progressPercentage}%`;
-        levelProgress.textContent = `${progress}/${pointsToNextLevel}`;
-        if (points >= level * LEVEL_UP_POINTS) {
-          levelUp();
+        
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('pomodoroSettings'));
+            if (settings) {
+                TIMER_MODES.focus = settings.focus * 60;
+                TIMER_MODES['short-break'] = settings['short-break'] * 60;
+                TIMER_MODES['long-break'] = settings['long-break'] * 60;
+                sessionsInCycle = settings.sessionsInCycle;
+                totalSessions = calculateTotalSessions(settings.totalDuration);
+                vibrationEnabled = settings.vibrationEnabled;
+            } else {
+                saveSettings();
+            }
         }
-        badgeGrid.innerHTML = "";
-        achievements.forEach((badge) => {
-          const badgeElement = document.createElement("div");
-          badgeElement.classList.add("badge");
-          if (badge.unlocked) {
-            badgeElement.classList.add("unlocked");
-          }
-          badgeElement.innerHTML = `
+        
+        function saveGamificationData() {
+            const data = {
+                points,
+                level,
+                sessionsCompleted,
+                lastSessionDate,
+                streak,
+                achievements
+            };
+            localStorage.setItem('pomodoroGamificationData', JSON.stringify(data));
+        }
+        
+        function loadGamificationData() {
+            const data = JSON.parse(localStorage.getItem('pomodoroGamificationData'));
+            if (data) {
+                points = data.points;
+                level = data.level;
+                sessionsCompleted = data.sessionsCompleted;
+                lastSessionDate = data.lastSessionDate ? new Date(data.lastSessionDate) : null;
+                streak = data.streak;
+                achievements = data.achievements;
+            }
+        }
+        
+        function saveProfileData() {
+            localStorage.setItem('pomodoroProfile', JSON.stringify(profile));
+        }
+        
+        function loadProfileData() {
+            const data = JSON.parse(localStorage.getItem('pomodoroProfile'));
+            if (data) {
+                profile = data;
+            }
+        }
+        
+        function updateGamificationUI() {
+            pointsDisplay.textContent = points;
+            levelDisplay.textContent = level;
+            streakDisplay.textContent = streak;
+            const pointsToNextLevel = LEVEL_UP_POINTS;
+            const progress = points % pointsToNextLevel;
+            const progressPercentage = (progress / pointsToNextLevel) * 100;
+            levelBar.style.width = `${progressPercentage}%`;
+            levelProgress.textContent = `${progress}/${pointsToNextLevel}`;
+            if (points >= level * LEVEL_UP_POINTS) {
+                levelUp();
+            }
+            badgeGrid.innerHTML = '';
+            achievements.forEach(badge => {
+                const badgeElement = document.createElement('div');
+                badgeElement.classList.add('badge');
+                if (badge.unlocked) {
+                    badgeElement.classList.add('unlocked');
+                }
+                badgeElement.innerHTML = `
                     <span>${badge.icon}</span>
                     <div class="tooltip">${badge.name} - ${badge.description}</div>
                 `;
-          badgeGrid.appendChild(badgeElement);
-        });
-      }
-
-      function updateProfileUI() {
-        profileNameDisplay.textContent = profile.name;
-        profileAvatarDisplay.src = profile.avatar;
-      }
-
-      function levelUp() {
-        level++;
-        showMessageBox(
-          `Уровень повышен! Теперь вы на уровне ${level}!`,
-          "success"
-        );
-      }
-
-      function checkAchievements() {
-        achievements.forEach((badge) => {
-          if (!badge.unlocked) {
-            let shouldUnlock = false;
-            switch (badge.requirement.type) {
-              case "sessions":
-                if (sessionsCompleted >= badge.requirement.value) {
-                  shouldUnlock = true;
+                badgeGrid.appendChild(badgeElement);
+            });
+        }
+        
+        function updateProfileUI() {
+            profileNameDisplay.textContent = profile.name;
+            profileAvatarDisplay.src = profile.avatar;
+        }
+        
+        function levelUp() {
+            level++;
+            showMessageBox(`Уровень повышен! Теперь вы на уровне ${level}!`, 'success');
+        }
+        
+        function checkAchievements() {
+            achievements.forEach(badge => {
+                if (!badge.unlocked) {
+                    let shouldUnlock = false;
+                    switch (badge.requirement.type) {
+                        case 'sessions':
+                            if (sessionsCompleted >= badge.requirement.value) {
+                                shouldUnlock = true;
+                            }
+                            break;
+                        case 'streak':
+                            if (streak >= badge.requirement.value) {
+                                shouldUnlock = true;
+                            }
+                            break;
+                    }
+                    if (shouldUnlock) {
+                        badge.unlocked = true;
+                        showMessageBox(`Достижение разблокировано: ${badge.name}!`, 'achievement');
+                    }
                 }
-                break;
-              case "streak":
-                if (streak >= badge.requirement.value) {
-                  shouldUnlock = true;
-                }
-                break;
-            }
-            if (shouldUnlock) {
-              badge.unlocked = true;
-              showMessageBox(
-                `Достижение разблокировано: ${badge.name}!`,
-                "achievement"
-              );
-            }
-          }
-        });
-      }
-
-      function updateStreak() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (!lastSessionDate) {
-          streak = 1;
-        } else {
-          const lastDay = new Date(lastSessionDate);
-          lastDay.setHours(0, 0, 0, 0);
-          const diffTime = today.getTime() - lastDay.getTime();
-          const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-          if (diffDays === 1) {
-            streak++;
-          } else if (diffDays > 1) {
-            streak = 1;
-          }
+            });
         }
-        lastSessionDate = new Date();
-      }
-
-      function vibrateDevice() {
-        if (vibrationEnabled && "vibrate" in navigator) {
-          navigator.vibrate([200, 100, 200]);
-        }
-      }
-
-      function showMessageBox(message, type = "info") {
-        const messageBox = document.createElement("div");
-        messageBox.classList.add("message-box");
-        let bgColor = "#16a34a";
-        if (type === "error") bgColor = "#dc2626";
-        if (type === "info") bgColor = "#3b82f6";
-        if (type === "achievement") bgColor = "#eab308";
-        messageBox.style.backgroundColor = bgColor;
-        messageBox.textContent = message;
-        document.body.appendChild(messageBox);
-        setTimeout(() => {
-          messageBox.classList.add("show");
-        }, 10);
-        setTimeout(() => {
-          messageBox.classList.remove("show");
-          setTimeout(() => {
-            messageBox.remove();
-          }, 500);
-        }, 3000);
-      }
-
-      function requestNotificationPermission() {
-        if (!("Notification" in window)) {
-          console.log("This browser does not support desktop notification");
-        } else if (Notification.permission === "granted") {
-          console.log("Notification permission already granted.");
-        } else if (Notification.permission !== "denied") {
-          Notification.requestPermission().then((permission) => {
-            if (permission === "granted") {
-              showMessageBox("Разрешение на уведомления получено!", "success");
-            }
-          });
-        }
-      }
-
-      function showNotification(title, body) {
-        if (Notification.permission === "granted") {
-          new Notification(title, {
-            body: body,
-            icon: "https://placehold.co/150x150/e2e8f0/cbd5e1?text=🍅",
-          });
-        }
-      }
-
-      // Improved session counter rendering
-      function drawSessionItems() {
-        sessionCounterContainer.innerHTML = "";
-
-        // Create groups of sessions based on sessionsInCycle
-        const groups = [];
-        for (let i = 0; i < totalSessions; i += sessionsInCycle) {
-          const group = [];
-          for (let j = 0; j < sessionsInCycle && i + j < totalSessions; j++) {
-            group.push(i + j);
-          }
-          groups.push(group);
-        }
-
-        // Render each group
-        groups.forEach((group, groupIndex) => {
-          const groupContainer = document.createElement("div");
-          groupContainer.classList.add("session-group");
-
-          group.forEach((sessionIndex) => {
-            const sessionItem = document.createElement("div");
-            sessionItem.classList.add("session-item");
-            if (sessionIndex < completedSessions) {
-              sessionItem.classList.add("filled");
-            }
-            groupContainer.appendChild(sessionItem);
-          });
-
-          sessionCounterContainer.appendChild(groupContainer);
-
-          // Add divider between groups (except after the last group)
-          if (groupIndex < groups.length - 1) {
-            const divider = document.createElement("div");
-            divider.classList.add("session-divider");
-            sessionCounterContainer.appendChild(divider);
-          }
-        });
-      }
-
-      function updateDisplay(currentTime) {
-        if (!isRunning) return;
-        const canvasWidth = timerCanvas.width;
-        const canvasHeight = timerCanvas.height;
-        const centerX = canvasWidth / 2;
-        const centerY = canvasHeight / 2;
-        const radius = Math.max(0, Math.min(centerX, centerY) - 20);
-        if (radius <= 0) return;
-        const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
-        const elapsed = (currentTime - startTime) / 1000;
-        timeRemaining = Math.max(0, totalTime - elapsed);
-        if (timeRemaining <= 0) {
-          if (currentMode === "focus") {
-            endFocusAnimation();
-          } else if (
-            currentMode === "short-break" ||
-            currentMode === "long-break"
-          ) {
-            endBreakAnimation();
-          }
-          return;
-        }
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = "#e2e8f0";
-        ctx.stroke();
-        const progress = elapsed / totalTime;
-        const endAngle = 2 * Math.PI * progress - Math.PI / 2;
-        const hue = 120 * (1 - progress);
-        const progressBarColor = `hsl(${hue}, 70%, 50%)`;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle, false);
-        ctx.strokeStyle = progressBarColor;
-        ctx.lineWidth = lineWidth;
-        ctx.lineCap = "round";
-        ctx.stroke();
-        const minutes = Math.floor(timeRemaining / 60);
-        const seconds = Math.round(timeRemaining % 60);
-        const timeText = `${String(minutes).padStart(2, "0")}:${String(
-          seconds
-        ).padStart(2, "0")}`;
-        document.title = `${timeText} - Pomodoro`;
-
-        // Адаптивный размер шрифта
-        const fontSize = getAdaptiveFontSize(
-          Math.min(canvasWidth, canvasHeight)
-        );
-        ctx.font = `bold ${fontSize} Inter, sans-serif`;
-        ctx.fillStyle = "#1e293b";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(timeText, centerX, centerY);
-        animationFrameId = requestAnimationFrame(updateDisplay);
-      }
-
-      function resizeCanvas() {
-        const container = timerCanvas.parentElement;
-        timerCanvas.width = container.offsetWidth;
-        timerCanvas.height = container.offsetWidth;
-        const minutes = Math.floor(totalTime / 60);
-        const seconds = Math.round(totalTime % 60);
-        const timeText = `${String(minutes).padStart(2, "0")}:${String(
-          seconds
-        ).padStart(2, "0")}`;
-        ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
-        const canvasWidth = timerCanvas.width;
-        const canvasHeight = timerCanvas.height;
-        const centerX = canvasWidth / 2;
-        const centerY = canvasHeight / 2;
-        const radius = Math.max(0, Math.min(centerX, centerY) - 20);
-        if (radius <= 0) return;
-        const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
-
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = "#e2e8f0";
-        ctx.stroke();
-
-        // Адаптивный размер шрифта
-        const fontSize = getAdaptiveFontSize(
-          Math.min(canvasWidth, canvasHeight)
-        );
-        ctx.font = `bold ${fontSize} Inter, sans-serif`;
-        ctx.fillStyle = "#1e293b";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(timeText, centerX, centerY);
-      }
-
-      function getRandomPhrase(mode, action) {
-        const phrases = PHRASES[mode][action];
-        const randomIndex = Math.floor(Math.random() * phrases.length);
-        return phrases[randomIndex];
-      }
-
-      async function playTTS(mode, action) {
-        const prompt = getRandomPhrase(mode, action);
-        const voice = "Zephyr";
-        loadingIndicator.style.display = "flex";
-        const apiKey = "";
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-        try {
-          const payload = {
-            contents: [
-              {
-                parts: [{ text: prompt }],
-              },
-            ],
-            generationConfig: {
-              responseModalities: ["AUDIO"],
-              speechConfig: {
-                voiceConfig: {
-                  prebuiltVoiceConfig: { voiceName: voice },
-                },
-              },
-            },
-            model: "gemini-2.5-flash-preview-tts",
-          };
-          const response = await fetch(apiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          if (!response.ok) {
-            throw new Error(
-              `API error: ${response.status} ${response.statusText}`
-            );
-          }
-          const result = await response.json();
-          const part = result?.candidates?.[0]?.content?.parts?.[0];
-          const audioData = part?.inlineData?.data;
-          const mimeType = part?.inlineData?.mimeType;
-          if (audioData && mimeType && mimeType.startsWith("audio/")) {
-            const sampleRateMatch = mimeType.match(/rate=(\d+)/);
-            const sampleRate = sampleRateMatch
-              ? parseInt(sampleRateMatch[1], 10)
-              : 16000;
-            const pcmData = base64ToArrayBuffer(audioData);
-            const pcm16 = new Int16Array(pcmData);
-            const wavBlob = pcmToWav(pcm16, sampleRate);
-            const audioUrl = URL.createObjectURL(wavBlob);
-            const audio = new Audio(audioUrl);
-            await audio.play();
-          } else {
-            console.error("Could not get audio data from API response.");
-          }
-        } catch (error) {
-          console.error("Error generating TTS:", error);
-        } finally {
-          loadingIndicator.style.display = "none";
-        }
-      }
-
-      function base64ToArrayBuffer(base64) {
-        const binaryString = window.atob(base64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes.buffer;
-      }
-
-      function pcmToWav(pcmData, sampleRate) {
-        const numChannels = 1;
-        const bitsPerSample = 16;
-        const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
-        const blockAlign = numChannels * (bitsPerSample / 8);
-        const buffer = new ArrayBuffer(44 + pcmData.byteLength);
-        const view = new DataView(buffer);
-        writeString(view, 0, "RIFF");
-        view.setUint32(4, 36 + pcmData.byteLength, true);
-        writeString(view, 8, "WAVE");
-        writeString(view, 12, "fmt ");
-        view.setUint32(16, 16, true);
-        view.setUint16(20, 1, true);
-        view.setUint16(22, numChannels, true);
-        view.setUint32(24, sampleRate, true);
-        view.setUint32(28, byteRate, true);
-        view.setUint16(32, blockAlign, true);
-        view.setUint16(34, bitsPerSample, true);
-        writeString(view, 36, "data");
-        view.setUint32(40, pcmData.byteLength, true);
-        for (let i = 0; i < pcmData.length; i++) {
-          view.setInt16(44 + i * 2, pcmData[i], true);
-        }
-        return new Blob([view], { type: "audio/wav" });
-      }
-
-      function writeString(view, offset, string) {
-        for (let i = 0; i < string.length; i++) {
-          view.setUint8(offset + i, string.charCodeAt(i));
-        }
-      }
-
-      function handleModeChange(mode, fromUserAction = false) {
-        if (isRunning && fromUserAction) {
-          showModal(
-            "Таймер запущен. Вы уверены, что хотите переключить режим?",
-            () => {
-              performModeSwitch(mode);
-            }
-          );
-        } else {
-          performModeSwitch(mode);
-        }
-      }
-
-      function performModeSwitch(mode) {
-        timerCanvas.style.opacity = "0";
-        timerCanvas.style.transform = "scale(0.9)";
-        setTimeout(() => {
-          stopTimer();
-          currentMode = mode;
-          totalTime = TIMER_MODES[currentMode];
-          timeRemaining = totalTime;
-          startBtn.classList.remove("hidden");
-          pauseBtn.classList.add("hidden");
-          modeButtons.forEach((btn) => {
-            if (btn.dataset.mode === mode) {
-              btn.classList.add("active");
+        
+        function updateStreak() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (!lastSessionDate) {
+                streak = 1;
             } else {
-              btn.classList.remove("active");
+                const lastDay = new Date(lastSessionDate);
+                lastDay.setHours(0, 0, 0, 0);
+                const diffTime = today.getTime() - lastDay.getTime();
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays === 1) {
+                    streak++;
+                } else if (diffDays > 1) {
+                    streak = 1;
+                }
             }
-          });
-          resizeCanvas();
-          drawSessionItems();
-          timerCanvas.style.opacity = "1";
-          timerCanvas.style.transform = "scale(1)";
-        }, 500);
-      }
-
-      function startTimer() {
-        if (isRunning) return;
-        if (Notification.permission === "default") {
-          requestNotificationPermission();
+            lastSessionDate = new Date();
         }
-        isRunning = true;
-        startBtn.classList.add("hidden");
-        pauseBtn.classList.remove("hidden");
-        playTTS(currentMode, "start");
-        startTime = performance.now();
-        animationFrameId = requestAnimationFrame(updateDisplay);
-      }
-
-      function pauseTimer() {
-        if (!isRunning) return;
-        stopTimer();
-        startBtn.classList.remove("hidden");
-        pauseBtn.classList.add("hidden");
-      }
-
-      function stopTimer() {
-        cancelAnimationFrame(animationFrameId);
-        isRunning = false;
-      }
-
-      function resetTimer() {
-        stopTimer();
-        timeRemaining = TIMER_MODES[currentMode];
-        resizeCanvas();
-        startBtn.classList.remove("hidden");
-        pauseBtn.classList.add("hidden");
-        completedSessions = 0;
-        drawSessionItems();
-        timerCanvas.style.transform = "";
-        timerCanvas.style.opacity = "1";
-      }
-
-      function showModal(message, onConfirm) {
-        const existingModal = document.querySelector(".modal");
-        if (existingModal) existingModal.remove();
-        const modalHtml = `
+        
+        function vibrateDevice() {
+            if (vibrationEnabled && 'vibrate' in navigator) {
+                navigator.vibrate([200, 100, 200]);
+            }
+        }
+        
+        function showMessageBox(message, type = 'info') {
+            const messageBox = document.createElement('div');
+            messageBox.classList.add('message-box');
+            let bgColor = '#16a34a';
+            if (type === 'error') bgColor = '#dc2626';
+            if (type === 'info') bgColor = '#3b82f6';
+            if (type === 'achievement') bgColor = '#eab308';
+            messageBox.style.backgroundColor = bgColor;
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
+            setTimeout(() => {
+                messageBox.classList.add('show');
+            }, 10);
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+                setTimeout(() => {
+                    messageBox.remove();
+                }, 500);
+            }, 3000);
+        }
+        
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                console.log("This browser does not support desktop notification");
+            } else if (Notification.permission === "granted") {
+                console.log("Notification permission already granted.");
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        showMessageBox("Разрешение на уведомления получено!", "success");
+                    }
+                });
+            }
+        }
+        
+        function showNotification(title, body) {
+            if (Notification.permission === "granted") {
+                new Notification(title, { body: body, icon: 'https://placehold.co/150x150/e2e8f0/cbd5e1?text=🍅' });
+            }
+        }
+        
+        // Improved session counter rendering
+        function drawSessionItems() {
+            sessionCounterContainer.innerHTML = '';
+            
+            // Create groups of sessions based on sessionsInCycle
+            const groups = [];
+            for (let i = 0; i < totalSessions; i += sessionsInCycle) {
+                const group = [];
+                for (let j = 0; j < sessionsInCycle && (i + j) < totalSessions; j++) {
+                    group.push(i + j);
+                }
+                groups.push(group);
+            }
+            
+            // Render each group
+            groups.forEach((group, groupIndex) => {
+                const groupContainer = document.createElement('div');
+                groupContainer.classList.add('session-group');
+                
+                group.forEach((sessionIndex) => {
+                    const sessionItem = document.createElement('div');
+                    sessionItem.classList.add('session-item');
+                    if (sessionIndex < completedSessions) {
+                        sessionItem.classList.add('filled');
+                    }
+                    groupContainer.appendChild(sessionItem);
+                });
+                
+                sessionCounterContainer.appendChild(groupContainer);
+                
+                // Add divider between groups (except after the last group)
+                if (groupIndex < groups.length - 1) {
+                    const divider = document.createElement('div');
+                    divider.classList.add('session-divider');
+                    sessionCounterContainer.appendChild(divider);
+                }
+            });
+        }
+        
+        function updateDisplay(currentTime) {
+            if (!isRunning) return;
+            const canvasWidth = timerCanvas.width;
+            const canvasHeight = timerCanvas.height;
+            const centerX = canvasWidth / 2;
+            const centerY = canvasHeight / 2;
+            const radius = Math.max(0, Math.min(centerX, centerY) - 20);
+            if (radius <= 0) return;
+            const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
+            const elapsed = (currentTime - startTime) / 1000;
+            timeRemaining = Math.max(0, totalTime - elapsed);
+            if (timeRemaining <= 0) {
+                if (currentMode === 'focus') {
+                    endFocusAnimation();
+                } else if (currentMode === 'short-break' || currentMode === 'long-break') {
+                    endBreakAnimation();
+                }
+                return;
+            }
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.stroke();
+            const progress = elapsed / totalTime;
+            const endAngle = (2 * Math.PI * progress) - (Math.PI / 2);
+            const hue = 120 * (1 - progress); 
+            const progressBarColor = `hsl(${hue}, 70%, 50%)`;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle, false);
+            ctx.strokeStyle = progressBarColor;
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = Math.round(timeRemaining % 60);
+            const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.title = `${timeText} - Pomodoro`;
+            
+            // Адаптивный размер шрифта
+            const fontSize = getAdaptiveFontSize(Math.min(canvasWidth, canvasHeight));
+            ctx.font = `bold ${fontSize} Inter, sans-serif`;
+            ctx.fillStyle = '#1e293b';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(timeText, centerX, centerY);
+            animationFrameId = requestAnimationFrame(updateDisplay);
+        }
+        
+        function resizeCanvas() {
+            const container = timerCanvas.parentElement;
+            timerCanvas.width = container.offsetWidth;
+            timerCanvas.height = container.offsetWidth;
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = Math.round(totalTime % 60);
+            const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            ctx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
+            const canvasWidth = timerCanvas.width;
+            const canvasHeight = timerCanvas.height;
+            const centerX = canvasWidth / 2;
+            const centerY = canvasHeight / 2;
+            const radius = Math.max(0, Math.min(centerX, centerY) - 20);
+            if (radius <= 0) return;
+            const lineWidth = Math.max(8, Math.min(15, radius / 15)); // Адаптивная толщина линии
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.stroke();
+            
+            // Адаптивный размер шрифта
+            const fontSize = getAdaptiveFontSize(Math.min(canvasWidth, canvasHeight));
+            ctx.font = `bold ${fontSize} Inter, sans-serif`;
+            ctx.fillStyle = '#1e293b';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(timeText, centerX, centerY);
+        }
+        
+        function getRandomPhrase(mode, action) {
+            const phrases = PHRASES[mode][action];
+            const randomIndex = Math.floor(Math.random() * phrases.length);
+            return phrases[randomIndex];
+        }
+        
+        async function playTTS(mode, action) {
+            const prompt = getRandomPhrase(mode, action);
+            const voice = 'Zephyr';
+            loadingIndicator.style.display = 'flex';
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+            try {
+                const payload = {
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: { voiceName: voice }
+                            }
+                        }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                }
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 16000;
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    const audio = new Audio(audioUrl);
+                    await audio.play();
+                } else {
+                    console.error("Could not get audio data from API response.");
+                }
+            } catch (error) {
+                console.error("Error generating TTS:", error);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+        
+        function pcmToWav(pcmData, sampleRate) {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+            const blockAlign = numChannels * (bitsPerSample / 8);
+            const buffer = new ArrayBuffer(44 + pcmData.byteLength);
+            const view = new DataView(buffer);
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + pcmData.byteLength, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitsPerSample, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, pcmData.byteLength, true);
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+            return new Blob([view], { type: 'audio/wav' });
+        }
+        
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+        
+        function handleModeChange(mode, fromUserAction = false) {
+            if (isRunning && fromUserAction) {
+                showModal('Таймер запущен. Вы уверены, что хотите переключить режим?', () => {
+                    performModeSwitch(mode);
+                });
+            } else {
+                performModeSwitch(mode);
+            }
+        }
+        
+        function performModeSwitch(mode) {
+            timerCanvas.style.opacity = '0';
+            timerCanvas.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                stopTimer();
+                currentMode = mode;
+                totalTime = TIMER_MODES[currentMode];
+                timeRemaining = totalTime;
+                startBtn.classList.remove('hidden');
+                pauseBtn.classList.add('hidden');
+                modeButtons.forEach(btn => {
+                    if (btn.dataset.mode === mode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                resizeCanvas();
+                drawSessionItems();
+                timerCanvas.style.opacity = '1';
+                timerCanvas.style.transform = 'scale(1)';
+            }, 500);
+        }
+        
+        function startTimer() {
+            if (isRunning) return;
+            if (Notification.permission === 'default') {
+                requestNotificationPermission();
+            }
+            isRunning = true;
+            startBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            playTTS(currentMode, 'start');
+            startTime = performance.now();
+            animationFrameId = requestAnimationFrame(updateDisplay);
+        }
+        
+        function pauseTimer() {
+            if (!isRunning) return;
+            stopTimer();
+            startBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+        }
+        
+        function stopTimer() {
+            cancelAnimationFrame(animationFrameId);
+            isRunning = false;
+        }
+        
+        function resetTimer() {
+            stopTimer();
+            timeRemaining = TIMER_MODES[currentMode];
+            resizeCanvas();
+            startBtn.classList.remove('hidden');
+            pauseBtn.classList.add('hidden');
+            completedSessions = 0;
+            drawSessionItems();
+            timerCanvas.style.transform = '';
+            timerCanvas.style.opacity = '1';
+        }
+        
+        function showModal(message, onConfirm) {
+            const existingModal = document.querySelector('.modal');
+            if (existingModal) existingModal.remove();
+            const modalHtml = `
                 <div class="modal">
                     <div class="modal-content">
                         <p class="mb-3">${message}</p>
@@ -1698,395 +1335,348 @@
                     </div>
                 </div>
             `;
-        document.body.insertAdjacentHTML("beforeend", modalHtml);
-        document
-          .getElementById("modal-confirm-btn")
-          .addEventListener("click", () => {
-            onConfirm();
-            document.querySelector(".modal").remove();
-          });
-        document
-          .getElementById("modal-cancel-btn")
-          .addEventListener("click", () => {
-            document.querySelector(".modal").remove();
-          });
-      }
-
-      function calculateTotalSessions(totalHours) {
-        const totalMinutes = totalHours * 60;
-        const focusMinutes = parseFloat(focusTimeInput.value);
-        const shortBreakMinutes = parseFloat(shortBreakTimeInput.value);
-        const longBreakMinutes = parseFloat(longBreakTimeInput.value);
-        const sessionsPerCycle = parseInt(sessionsCountInput.value);
-        if (
-          focusMinutes <= 0 ||
-          shortBreakMinutes <= 0 ||
-          longBreakMinutes <= 0 ||
-          sessionsPerCycle <= 0
-        ) {
-          return 0;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+                onConfirm();
+                document.querySelector('.modal').remove();
+            });
+            document.getElementById('modal-cancel-btn').addEventListener('click', () => {
+                document.querySelector('.modal').remove();
+            });
         }
-        let sessionsCount = 0;
-        let currentMinutes = 0;
-        while (currentMinutes < totalMinutes) {
-          sessionsCount++;
-          currentMinutes += focusMinutes;
-          if (sessionsCount % sessionsPerCycle === 0) {
-            currentMinutes += longBreakMinutes;
-          } else {
-            currentMinutes += shortBreakMinutes;
-          }
-        }
-        return Math.max(1, sessionsCount - 1);
-      }
-
-      function syncInputs(slider, input) {
-        slider.addEventListener("input", (e) => {
-          input.value = e.target.value;
-        });
-        input.addEventListener("input", (e) => {
-          const value = parseFloat(e.target.value);
-          const min = parseFloat(slider.min);
-          const max = parseFloat(slider.max);
-          if (!isNaN(value) && value >= min && value <= max) {
-            slider.value = value;
-          }
-        });
-      }
-
-      function setDifficultyLevel(level) {
-        let settings;
-        if (level === "custom") {
-          const customSettings = JSON.parse(
-            localStorage.getItem("pomodoroSettings")
-          );
-          if (customSettings) {
-            settings = customSettings;
-          } else {
-            settings = {
-              focus: TIMER_MODES.focus / 60,
-              "short-break": TIMER_MODES["short-break"] / 60,
-              "long-break": TIMER_MODES["long-break"] / 60,
-              sessionsInCycle: sessionsInCycle,
-              totalDuration: totalDurationInput.value,
-              vibrationEnabled: vibrationEnabled,
-            };
-          }
-        } else {
-          const presetSettings = PRESETS[level];
-          settings = {
-            focus: presetSettings.focus,
-            "short-break": presetSettings["short-break"],
-            "long-break": presetSettings["long-break"],
-            sessionsInCycle: presetSettings.sessionsInCycle,
-            totalDuration: totalDurationInput.value,
-          };
-        }
-        focusTimeInput.value = settings.focus;
-        focusTimeSlider.value = settings.focus;
-        shortBreakTimeInput.value = settings["short-break"];
-        shortBreakTimeSlider.value = settings["short-break"];
-        longBreakTimeInput.value = settings["long-break"];
-        longBreakTimeSlider.value = settings["long-break"];
-        sessionsCountInput.value = settings.sessionsInCycle;
-        sessionsCountSlider.value = settings.sessionsInCycle;
-        totalDurationInput.value = settings.totalDuration;
-        totalDurationSlider.value = settings.totalDuration;
-        vibrationToggle.checked = settings.vibrationEnabled;
-      }
-
-      function endFocusAnimation() {
-        stopTimer();
-        vibrateDevice();
-        showNotification(
-          PHRASES[currentMode].notificationTitle,
-          getRandomPhrase(currentMode, "end")
-        );
-        playTTS(currentMode, "end");
-        sessionsCompleted++;
-        completedSessions++;
-        points += POINTS_PER_SESSION;
-        updateStreak();
-        checkAchievements();
-        saveGamificationData();
-        updateGamificationUI();
-        const targetSessionElement =
-          document.getElementById("session-counter").children[
-            completedSessions - 1
-          ];
-        if (!targetSessionElement) {
-          if (completedSessions % sessionsInCycle === 0) {
-            handleModeChange("long-break");
-          } else {
-            handleModeChange("short-break");
-          }
-          return;
-        }
-        const canvasRect = timerCanvas.getBoundingClientRect();
-        const targetRect = targetSessionElement.getBoundingClientRect();
-        const dx =
-          targetRect.left +
-          targetRect.width / 2 -
-          (canvasRect.left + canvasRect.width / 2);
-        const dy =
-          targetRect.top +
-          targetRect.height / 2 -
-          (canvasRect.top + canvasRect.height / 2);
-        timerCanvas.style.transform = `translate(${dx}px, ${dy}px) scale(0.1)`;
-        timerCanvas.style.opacity = "0";
-        setTimeout(() => {
-          drawSessionItems();
-          if (completedSessions % sessionsInCycle === 0) {
-            handleModeChange("long-break");
-          } else {
-            handleModeChange("short-break");
-          }
-        }, 500);
-      }
-
-      function endBreakAnimation() {
-        stopTimer();
-        vibrateDevice();
-        showNotification(
-          PHRASES[currentMode].notificationTitle,
-          getRandomPhrase(currentMode, "end")
-        );
-        playTTS(currentMode, "end");
-        handleModeChange("focus");
-      }
-
-      // Tab switching functionality
-      tabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          const tabName = tab.getAttribute("data-tab");
-
-          // Update active tab
-          tabs.forEach((t) => t.classList.remove("active"));
-          tab.classList.add("active");
-
-          // Show active content
-          tabContents.forEach((content) => {
-            content.classList.remove("active");
-            if (content.id === `${tabName}-tab`) {
-              content.classList.add("active");
+        
+        function calculateTotalSessions(totalHours) {
+            const totalMinutes = totalHours * 60;
+            const focusMinutes = parseFloat(focusTimeInput.value);
+            const shortBreakMinutes = parseFloat(shortBreakTimeInput.value);
+            const longBreakMinutes = parseFloat(longBreakTimeInput.value);
+            const sessionsPerCycle = parseInt(sessionsCountInput.value);
+            if (focusMinutes <= 0 || shortBreakMinutes <= 0 || longBreakMinutes <= 0 || sessionsPerCycle <= 0) {
+                return 0;
             }
-          });
-        });
-      });
-
-      // Open combined modal with profile tab active
-      profileDisplay.addEventListener("click", () => {
-        // Set profile inputs to current values
-        profileNameInput.value = profile.name;
-        combinedModal.classList.remove("hidden");
-
-        // Activate profile tab
-        tabs.forEach((t) => t.classList.remove("active"));
-        document
-          .querySelector('.tab[data-tab="profile"]')
-          .classList.add("active");
-
-        tabContents.forEach((content) => {
-          content.classList.remove("active");
-          if (content.id === "profile-tab") {
-            content.classList.add("active");
-          }
-        });
-      });
-
-      // Open combined modal with settings tab active
-      settingsBtn.addEventListener("click", () => {
-        focusTimeSlider.value = TIMER_MODES.focus / 60;
-        focusTimeInput.value = TIMER_MODES.focus / 60;
-        shortBreakTimeSlider.value = TIMER_MODES["short-break"] / 60;
-        shortBreakTimeInput.value = TIMER_MODES["short-break"] / 60;
-        longBreakTimeSlider.value = TIMER_MODES["long-break"] / 60;
-        longBreakTimeInput.value = TIMER_MODES["long-break"] / 60;
-        sessionsCountSlider.value = sessionsInCycle;
-        sessionsCountInput.value = sessionsInCycle;
-        totalDurationSlider.value = totalDurationInput.value;
-        vibrationToggle.checked = vibrationEnabled;
-        combinedModal.classList.remove("hidden");
-
-        // Activate settings tab
-        tabs.forEach((t) => t.classList.remove("active"));
-        document
-          .querySelector('.tab[data-tab="settings"]')
-          .classList.add("active");
-
-        tabContents.forEach((content) => {
-          content.classList.remove("active");
-          if (content.id === "settings-tab") {
-            content.classList.add("active");
-          }
-        });
-      });
-
-      // Open combined modal with achievements tab active
-      achievementsBtn.addEventListener("click", () => {
-        combinedModal.classList.remove("hidden");
-        updateGamificationUI();
-
-        // Activate achievements tab
-        tabs.forEach((t) => t.classList.remove("active"));
-        document
-          .querySelector('.tab[data-tab="achievements"]')
-          .classList.add("active");
-
-        tabContents.forEach((content) => {
-          content.classList.remove("active");
-          if (content.id === "achievements-tab") {
-            content.classList.add("active");
-          }
-        });
-      });
-
-      // Save profile from modal
-      saveProfileBtn.addEventListener("click", () => {
-        const newName = profileNameInput.value.trim();
-        const newFile = profileAvatarFile.files[0];
-        if (newName) {
-          profile.name = newName;
+            let sessionsCount = 0;
+            let currentMinutes = 0;
+            while (currentMinutes < totalMinutes) {
+                sessionsCount++;
+                currentMinutes += focusMinutes;
+                if (sessionsCount % sessionsPerCycle === 0) {
+                    currentMinutes += longBreakMinutes;
+                } else {
+                    currentMinutes += shortBreakMinutes;
+                }
+            }
+            return Math.max(1, sessionsCount - 1);
         }
-        if (newFile) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            profile.avatar = e.target.result;
-            saveProfileData();
+        
+        function syncInputs(slider, input) {
+            slider.addEventListener('input', (e) => {
+                input.value = e.target.value;
+            });
+            input.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                const min = parseFloat(slider.min);
+                const max = parseFloat(slider.max);
+                if (!isNaN(value) && value >= min && value <= max) {
+                    slider.value = value;
+                }
+            });
+        }
+        
+        function setDifficultyLevel(level) {
+            let settings;
+            if (level === 'custom') {
+                const customSettings = JSON.parse(localStorage.getItem('pomodoroSettings'));
+                if (customSettings) {
+                    settings = customSettings;
+                } else {
+                    settings = {
+                        focus: TIMER_MODES.focus / 60,
+                        'short-break': TIMER_MODES['short-break'] / 60,
+                        'long-break': TIMER_MODES['long-break'] / 60,
+                        sessionsInCycle: sessionsInCycle,
+                        totalDuration: totalDurationInput.value,
+                        vibrationEnabled: vibrationEnabled
+                    };
+                }
+            } else {
+                const presetSettings = PRESETS[level];
+                settings = {
+                    focus: presetSettings.focus,
+                    'short-break': presetSettings['short-break'],
+                    'long-break': presetSettings['long-break'],
+                    sessionsInCycle: presetSettings.sessionsInCycle,
+                    totalDuration: totalDurationInput.value
+                };
+            }
+            focusTimeInput.value = settings.focus;
+            focusTimeSlider.value = settings.focus;
+            shortBreakTimeInput.value = settings['short-break'];
+            shortBreakTimeSlider.value = settings['short-break'];
+            longBreakTimeInput.value = settings['long-break'];
+            longBreakTimeSlider.value = settings['long-break'];
+            sessionsCountInput.value = settings.sessionsInCycle;
+            sessionsCountSlider.value = settings.sessionsInCycle;
+            totalDurationInput.value = settings.totalDuration;
+            totalDurationSlider.value = settings.totalDuration;
+            vibrationToggle.checked = settings.vibrationEnabled;
+        }
+        
+        function endFocusAnimation() {
+            stopTimer();
+            vibrateDevice();
+            showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
+            playTTS(currentMode, 'end');
+            sessionsCompleted++;
+            completedSessions++;
+            points += POINTS_PER_SESSION;
+            updateStreak();
+            checkAchievements();
+            saveGamificationData();
+            updateGamificationUI();
+            const targetSessionElement = document.getElementById('session-counter').children[completedSessions - 1];
+            if (!targetSessionElement) {
+                if (completedSessions % sessionsInCycle === 0) {
+                    handleModeChange('long-break');
+                } else {
+                    handleModeChange('short-break');
+                }
+                return;
+            }
+            const canvasRect = timerCanvas.getBoundingClientRect();
+            const targetRect = targetSessionElement.getBoundingClientRect();
+            const dx = (targetRect.left + targetRect.width / 2) - (canvasRect.left + canvasRect.width / 2);
+            const dy = (targetRect.top + targetRect.height / 2) - (canvasRect.top + canvasRect.height / 2);
+            timerCanvas.style.transform = `translate(${dx}px, ${dy}px) scale(0.1)`;
+            timerCanvas.style.opacity = '0';
+            setTimeout(() => {
+                drawSessionItems();
+                if (completedSessions % sessionsInCycle === 0) {
+                    handleModeChange('long-break');
+                } else {
+                    handleModeChange('short-break');
+                }
+            }, 500);
+        }
+        
+        function endBreakAnimation() {
+            stopTimer();
+            vibrateDevice();
+            showNotification(PHRASES[currentMode].notificationTitle, getRandomPhrase(currentMode, 'end'));
+            playTTS(currentMode, 'end');
+            handleModeChange('focus');
+        }
+        
+        // Tab switching functionality
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show active content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === `${tabName}-tab`) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        // Open combined modal with profile tab active
+        profileDisplay.addEventListener('click', () => {
+            // Set profile inputs to current values
+            profileNameInput.value = profile.name;
+            combinedModal.classList.remove('hidden');
+            
+            // Activate profile tab
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="profile"]').classList.add('active');
+            
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === 'profile-tab') {
+                    content.classList.add('active');
+                }
+            });
+        });
+        
+        // Open combined modal with settings tab active
+        settingsBtn.addEventListener('click', () => {
+            focusTimeSlider.value = TIMER_MODES.focus / 60;
+            focusTimeInput.value = TIMER_MODES.focus / 60;
+            shortBreakTimeSlider.value = TIMER_MODES['short-break'] / 60;
+            shortBreakTimeInput.value = TIMER_MODES['short-break'] / 60;
+            longBreakTimeSlider.value = TIMER_MODES['long-break'] / 60;
+            longBreakTimeInput.value = TIMER_MODES['long-break'] / 60;
+            sessionsCountSlider.value = sessionsInCycle;
+            sessionsCountInput.value = sessionsInCycle;
+            totalDurationSlider.value = totalDurationInput.value;
+            vibrationToggle.checked = vibrationEnabled;
+            combinedModal.classList.remove('hidden');
+            
+            // Activate settings tab
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="settings"]').classList.add('active');
+            
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === 'settings-tab') {
+                    content.classList.add('active');
+                }
+            });
+        });
+        
+        // Open combined modal with achievements tab active
+        achievementsBtn.addEventListener('click', () => {
+            combinedModal.classList.remove('hidden');
+            updateGamificationUI();
+            
+            // Activate achievements tab
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="achievements"]').classList.add('active');
+            
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === 'achievements-tab') {
+                    content.classList.add('active');
+                }
+            });
+        });
+        
+        // Save profile from modal
+        saveProfileBtn.addEventListener('click', () => {
+            const newName = profileNameInput.value.trim();
+            const newFile = profileAvatarFile.files[0];
+            if (newName) {
+                profile.name = newName;
+            }
+            if (newFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profile.avatar = e.target.result;
+                    saveProfileData();
+                    updateProfileUI();
+                    combinedModal.classList.add('hidden');
+                };
+                reader.readAsDataURL(newFile);
+            } else {
+                saveProfileData();
+                updateProfileUI();
+                combinedModal.classList.add('hidden');
+            }
+        });
+        
+        // Cancel profile changes
+        cancelProfileBtn.addEventListener('click', () => {
+            combinedModal.classList.add('hidden');
+        });
+        
+        // Save settings from modal
+        saveSettingsBtn.addEventListener('click', () => {
+            const newFocusTime = parseFloat(focusTimeInput.value) * 60;
+            const newShortBreakTime = parseFloat(shortBreakTimeInput.value) * 60;
+            const newLongBreakTime = parseFloat(longBreakTimeInput.value) * 60;
+            const newSessionsInCycle = parseInt(sessionsCountInput.value);
+            const totalDurationHours = parseFloat(totalDurationInput.value);
+            const newVibrationEnabled = vibrationToggle.checked;
+            if (!isNaN(newFocusTime) && newFocusTime > 0 &&
+                !isNaN(newShortBreakTime) && newShortBreakTime > 0 &&
+                !isNaN(newLongBreakTime) && newLongBreakTime > 0 &&
+                !isNaN(newSessionsInCycle) && newSessionsInCycle > 0) {
+                TIMER_MODES.focus = newFocusTime;
+                TIMER_MODES['short-break'] = newShortBreakTime;
+                TIMER_MODES['long-break'] = newLongBreakTime;
+                sessionsInCycle = newSessionsInCycle;
+                vibrationEnabled = newVibrationEnabled;
+                PRESETS.custom.focus = newFocusTime / 60;
+                PRESETS.custom['short-break'] = newShortBreakTime / 60;
+                PRESETS.custom['long-break'] = newLongBreakTime / 60;
+                PRESETS.custom.sessionsInCycle = newSessionsInCycle;
+                if (!isNaN(totalDurationHours) && totalDurationHours > 0) {
+                    totalSessions = calculateTotalSessions(totalDurationHours);
+                } else {
+                    totalSessions = 12;
+                }
+                completedSessions = 0;
+                if (!isRunning) {
+                    totalTime = TIMER_MODES[currentMode];
+                    timeRemaining = totalTime;
+                    resizeCanvas();
+                    drawSessionItems();
+                }
+                saveSettings();
+                combinedModal.classList.add('hidden');
+            } else {
+                showModal("Пожалуйста, введите корректные значения (больше 0).", () => {});
+            }
+        });
+        
+        // Cancel settings and close modal
+        cancelSettingsBtn.addEventListener('click', () => {
+            combinedModal.classList.add('hidden');
+        });
+        
+        // Reset settings to default values
+        resetDefaultBtn.addEventListener('click', () => {
+            setDifficultyLevel('standard');
+            difficultyLevel.value = 'standard';
+            vibrationToggle.checked = DEFAULT_SETTINGS.vibrationEnabled;
+        });
+        
+        // Close achievements and modal
+        closeAchievementsBtn.addEventListener('click', () => {
+            combinedModal.classList.add('hidden');
+        });
+        
+        // Handle difficulty level change
+        difficultyLevel.addEventListener('change', (e) => {
+            setDifficultyLevel(e.target.value);
+        });
+        
+        window.onload = function() {
+            loadSettings();
+            loadGamificationData();
+            loadProfileData();
+            updateGamificationUI();
             updateProfileUI();
-            combinedModal.classList.add("hidden");
-          };
-          reader.readAsDataURL(newFile);
-        } else {
-          saveProfileData();
-          updateProfileUI();
-          combinedModal.classList.add("hidden");
-        }
-      });
-
-      // Cancel profile changes
-      cancelProfileBtn.addEventListener("click", () => {
-        combinedModal.classList.add("hidden");
-      });
-
-      // Save settings from modal
-      saveSettingsBtn.addEventListener("click", () => {
-        const newFocusTime = parseFloat(focusTimeInput.value) * 60;
-        const newShortBreakTime = parseFloat(shortBreakTimeInput.value) * 60;
-        const newLongBreakTime = parseFloat(longBreakTimeInput.value) * 60;
-        const newSessionsInCycle = parseInt(sessionsCountInput.value);
-        const totalDurationHours = parseFloat(totalDurationInput.value);
-        const newVibrationEnabled = vibrationToggle.checked;
-        if (
-          !isNaN(newFocusTime) &&
-          newFocusTime > 0 &&
-          !isNaN(newShortBreakTime) &&
-          newShortBreakTime > 0 &&
-          !isNaN(newLongBreakTime) &&
-          newLongBreakTime > 0 &&
-          !isNaN(newSessionsInCycle) &&
-          newSessionsInCycle > 0
-        ) {
-          TIMER_MODES.focus = newFocusTime;
-          TIMER_MODES["short-break"] = newShortBreakTime;
-          TIMER_MODES["long-break"] = newLongBreakTime;
-          sessionsInCycle = newSessionsInCycle;
-          vibrationEnabled = newVibrationEnabled;
-          PRESETS.custom.focus = newFocusTime / 60;
-          PRESETS.custom["short-break"] = newShortBreakTime / 60;
-          PRESETS.custom["long-break"] = newLongBreakTime / 60;
-          PRESETS.custom.sessionsInCycle = newSessionsInCycle;
-          if (!isNaN(totalDurationHours) && totalDurationHours > 0) {
-            totalSessions = calculateTotalSessions(totalDurationHours);
-          } else {
-            totalSessions = 12;
-          }
-          completedSessions = 0;
-          if (!isRunning) {
-            totalTime = TIMER_MODES[currentMode];
-            timeRemaining = totalTime;
+            focusTimeInput.value = TIMER_MODES.focus / 60;
+            focusTimeSlider.value = TIMER_MODES.focus / 60;
+            shortBreakTimeInput.value = TIMER_MODES['short-break'] / 60;
+            shortBreakTimeSlider.value = TIMER_MODES['short-break'] / 60;
+            longBreakTimeInput.value = TIMER_MODES['long-break'] / 60;
+            longBreakTimeSlider.value = TIMER_MODES['long-break'] / 60;
+            sessionsCountInput.value = sessionsInCycle;
+            sessionsCountSlider.value = sessionsInCycle;
+            vibrationToggle.checked = vibrationEnabled;
             resizeCanvas();
             drawSessionItems();
-          }
-          saveSettings();
-          combinedModal.classList.add("hidden");
-        } else {
-          showModal(
-            "Пожалуйста, введите корректные значения (больше 0).",
-            () => {}
-          );
-        }
-      });
-
-      // Cancel settings and close modal
-      cancelSettingsBtn.addEventListener("click", () => {
-        combinedModal.classList.add("hidden");
-      });
-
-      // Reset settings to default values
-      resetDefaultBtn.addEventListener("click", () => {
-        setDifficultyLevel("standard");
-        difficultyLevel.value = "standard";
-        vibrationToggle.checked = DEFAULT_SETTINGS.vibrationEnabled;
-      });
-
-      // Close achievements and modal
-      closeAchievementsBtn.addEventListener("click", () => {
-        combinedModal.classList.add("hidden");
-      });
-
-      // Handle difficulty level change
-      difficultyLevel.addEventListener("change", (e) => {
-        setDifficultyLevel(e.target.value);
-      });
-
-      window.onload = function () {
-        loadSettings();
-        loadGamificationData();
-        loadProfileData();
-        updateGamificationUI();
-        updateProfileUI();
-        focusTimeInput.value = TIMER_MODES.focus / 60;
-        focusTimeSlider.value = TIMER_MODES.focus / 60;
-        shortBreakTimeInput.value = TIMER_MODES["short-break"] / 60;
-        shortBreakTimeSlider.value = TIMER_MODES["short-break"] / 60;
-        longBreakTimeInput.value = TIMER_MODES["long-break"] / 60;
-        longBreakTimeSlider.value = TIMER_MODES["long-break"] / 60;
-        sessionsCountInput.value = sessionsInCycle;
-        sessionsCountSlider.value = sessionsInCycle;
-        vibrationToggle.checked = vibrationEnabled;
-        resizeCanvas();
-        drawSessionItems();
-      };
-
-      window.addEventListener("resize", resizeCanvas);
-
-      startBtn.addEventListener("click", startTimer);
-      pauseBtn.addEventListener("click", pauseTimer);
-      resetBtn.addEventListener("click", resetTimer);
-      document
-        .getElementById("focus-btn")
-        .addEventListener("click", () => handleModeChange("focus", true));
-      document
-        .getElementById("short-break-btn")
-        .addEventListener("click", () => handleModeChange("short-break", true));
-      document
-        .getElementById("long-break-btn")
-        .addEventListener("click", () => handleModeChange("long-break", true));
-
-      syncInputs(focusTimeSlider, focusTimeInput);
-      syncInputs(shortBreakTimeSlider, shortBreakTimeInput);
-      syncInputs(longBreakTimeSlider, longBreakTimeInput);
-      syncInputs(sessionsCountSlider, sessionsCountInput);
-      syncInputs(totalDurationSlider, totalDurationInput);
-
-      totalDurationInput.addEventListener("input", () => {
-        totalDurationSlider.value = totalDurationInput.value;
-      });
-
-      totalDurationSlider.addEventListener("input", () => {
-        totalDurationInput.value = totalDurationSlider.value;
-      });
+        };
+        
+        window.addEventListener('resize', resizeCanvas);
+        
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        document.getElementById('focus-btn').addEventListener('click', () => handleModeChange('focus', true));
+        document.getElementById('short-break-btn').addEventListener('click', () => handleModeChange('short-break', true));
+        document.getElementById('long-break-btn').addEventListener('click', () => handleModeChange('long-break', true));
+        
+        syncInputs(focusTimeSlider, focusTimeInput);
+        syncInputs(shortBreakTimeSlider, shortBreakTimeInput);
+        syncInputs(longBreakTimeSlider, longBreakTimeInput);
+        syncInputs(sessionsCountSlider, sessionsCountInput);
+        syncInputs(totalDurationSlider, totalDurationInput);
+        
+        totalDurationInput.addEventListener('input', () => {
+            totalDurationSlider.value = totalDurationInput.value;
+        });
+        
+        totalDurationSlider.addEventListener('input', () => {
+            totalDurationInput.value = totalDurationSlider.value;
+        });
     </script>
-  </body>
+</body>
 </html>
